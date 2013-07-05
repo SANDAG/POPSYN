@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Target">
+
+	<typeAlias alias="Target" type="org.sandag.popsyn.domain.Target" />
+	<typeAlias alias="targetQParameters"
+		type="org.sandag.popsyn.domain.Target" />
+
+	<resultMap class="Target" id="TargetResult">
+		<result property="category" column="category" />
+		<result property="geoType" column="geo_type_id" />
+		<result property="zone" column="geo_zone" />
+		<result property="year" column="year" />
+		<result property="luMajorVersion" column="lu_major_version" />
+		<result property="luMinorVersion" column="lu_minor_version" />
+		<result property="weight" column="value" />
+	</resultMap>
+
+	<sql id="select-from-stmt">
+	<![CDATA[
+		SELECT 
+			 c.id as category,g.id as geo_type_id,t.geo_zone as geo_zone, t.year as year, t.lu_major_version as lu_major_version, t.lu_minor_version as lu_minor_version, t.value as value
+  		FROM         target_category c INNER JOIN
+                      target t ON c.id = t.category INNER JOIN
+                      data_cafe.dbo.geography_type g ON t.geo_type_id = g.id 
+           	
+	]]>
+	</sql>
+
+    <select id="getTargetByZone" parameterClass="targetQParameters" resultMap="TargetResult" >
+		<include refid="select-from-stmt" />
+		WHERE category=#category# and year=#year# and
+		geo_type_id=#geoType# and lu_major_version=#luMajorVersion# and
+		lu_minor_version=#luMinorVersion# and geo_zone = #geoZone#
+	</select>
+	
+	<select id="getTargetByZone2" parameterClass="targetQParameters" resultClass="double">
+        SELECT 
+          value
+        FROM
+          target
+        WHERE 
+          category=#category#
+          and year=#year#
+          and geo_type_id=#geoType#
+          and lu_major_version=#luMajorVersion#
+          and lu_minor_version=#luMinorVersion#
+          and geo_zone = #geoZone#
+    </select>
+    
+    <select id="getTargetSummation" parameterClass="targetQParameters" resultClass="double">
+        SELECT 
+          sum(value) as value
+        FROM
+          target
+        WHERE 
+          category=#category#
+          and year=#year#
+          and geo_type_id=#geoType#
+          and lu_major_version=#luMajorVersion#
+          and lu_minor_version=#luMinorVersion#
+          and geo_zone in
+          <iterate property="geoZones" open="(" close=")" conjunction=",">
+                #geoZones[]#
+          </iterate>
+    </select>
+    
+    <select id="regenerateTargets" parameterClass="int">
+
+		EXECUTE proc_regenerate_acs_targets #tyear#
+
+    </select>
+    
+</sqlMap>

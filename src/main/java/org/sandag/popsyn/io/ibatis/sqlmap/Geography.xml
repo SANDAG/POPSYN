@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Geography">
+
+	<typeAlias alias="Geography" type="org.sandag.popsyn.domain.Geography" />
+
+	<resultMap class="Geography" id="GeographyResult">
+		<result property="zone" column="zone" />
+		<result property="geoType" column="geo_type_id" />
+		<result property="alias" column="alias" />
+	</resultMap>
+
+	<resultMap class="Geography" id="childMap">
+		<result property="zone" column="cZone" />
+		<result property="geoType" column="cGeoType" />
+	</resultMap>
+
+	<resultMap id="parentMap" class="Geography" groupBy="zone">
+		<result property="zone" column="pZone" />
+		<result property="geoType" column="pGeoType" />
+		<result property="children" resultMap="Geography.childMap" />
+	</resultMap>
+
+	<select id="getAllZonesByType" resultMap="GeographyResult"
+		parameterClass="int">
+		SELECT z.zone, z.geo_type_id, z.alias
+		FROM
+		data_cafe.dbo.geography_zone z
+		WHERE z.geo_type_id = #value#
+	</select>
+
+	<select id="getAllSubZonesByTypeAndId" resultMap="GeographyResult"
+		parameterClass="java.util.HashMap">
+		WITH T AS (
+		SELECT
+		p.shape pShape
+		FROM
+		data_cafe.dbo.geography_zone p
+		WHERE
+		p.geo_type_id = #superZone# and
+		p.zone = #superZoneId#
+		)
+
+		SELECT
+		c.geo_type_id,
+		c.zone,
+		c.alias
+		FROM
+		data_cafe.dbo.geography_zone c, T
+		WHERE
+		c.geo_type_id = #subZone#
+		and
+		T.pShape.STContains(c.centroid) = 1 
+    </select>
+
+	<select id="getSuperZoneByTypeAndId" resultMap="GeographyResult"
+		parameterClass="java.util.HashMap">
+		WITH T AS (
+		SELECT
+		c.centroid cCentroid
+		FROM
+		data_cafe.dbo.geography_zone c
+		WHERE
+		c.geo_type_id = #subZone# and
+		c.zone = #subZoneId#
+		)
+
+		SELECT
+		p.geo_type_id,
+		p.zone,
+		p.alias
+		FROM
+		data_cafe.dbo.geography_zone p, T
+		WHERE
+		p.geo_type_id = #superZone#
+		and
+		T.cCentroid.STWithin(p.shape) = 1 
+    </select>
+</sqlMap>

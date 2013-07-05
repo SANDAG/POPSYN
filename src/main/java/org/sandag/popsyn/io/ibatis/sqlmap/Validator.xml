@@ -1,0 +1,1041 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Validator">
+
+	<typeAlias alias="CensusPumaValMetrics" type="org.sandag.popsyn.validator.CensusPumaValMetrics" />
+	<typeAlias alias="AcsPumaValMetrics" type="org.sandag.popsyn.validator.AcsPumaValMetrics" />
+
+	<resultMap class="CensusPumaValMetrics" id="censusValResult">
+		<result property="puma" column="puma" />
+		<result property="hhsUnivs" column="hhs" />
+		<result property="famHhs" column="famHhs" />
+		<result property="nonFamHhs" column="nonFamHhs" />
+		<result property="hhsbyHolderAge15to64" column="hhsbyHolderAge15to64" />
+		<result property="hhsbyHolderAge65Plus" column="hhsbyHolderAge65Plus" />
+		<result property="famHhsbyHolderAge15to64" column="famHhsbyHolderAge15to64" />
+		<result property="famHhsbyHolderAge65Plus" column="famHhsbyHolderAge65Plus" />
+		<result property="nonFamHhsbyHolderAge15to64" column="nonFamHhsbyHolderAge15to64" />
+		<result property="nonFamHhsbyHolderAge65Plus" column="nonFamHhsbyHolderAge65Plus" />
+		<result property="hh1Person" column="hh1Person" />
+		<result property="hh2Persons" column="hh2Persons" />
+		<result property="hh3Persons" column="hh3Persons" />
+		<result property="hh4PlusPersons" column="hh4PlusPersons" />
+		<result property="famHhsOwnChildUnder18" column="famHhsOwnChildUnder18" />
+		<result property="famHhsNoOwnChildUnder18" column="famHhsNoOwnChildUnder18" />
+		<result property="famHhsAge18UnderPres" column="famHhsAge18UnderPres" />
+		<result property="famHhsNoAge18UnderPres" column="famHhsNoAge18UnderPres" />
+		<result property="nonFamHhsAge18UnderPres" column="nonFamHhsAge18UnderPres" />
+		<result property="nonFamHhsNoAge18UnderPres" column="nonFamHhsNoAge18UnderPres" />
+		<result property="hhs1PlusAge65Plus" column="hhs1PlusAge65Plus" />
+		<result property="hhsNoAge65Plus" column="hhsNoAge65Plus" />
+		<result property="hhs1PersonAge65Plus" column="hhs1PersonAge65Plus" />
+		<result property="fam2PlusPersons1PlusAge65Plus" column="fam2PlusPersons1PlusAge65Plus" />
+		<result property="nonFam2PlusPersons1PlusAge65Plus" column="nonFam2PlusPersons1PlusAge65Plus" />
+		<result property="hhs1PersonAge65Under" column="hhs1PersonAge65Under" />
+		<result property="fam2PlusPersonsNoAge65Plus" column="fam2PlusPersonsNoAge65Plus" />
+		<result property="nonFam2PlusPersonsNoAge65Plus" column="nonFam2PlusPersonsNoAge65Plus" />
+		<result property="numOfWorkers0" column="numOfWorkers0" />
+		<result property="numOfWorkers1" column="numOfWorkers1" />
+		<result property="numOfWorkers2" column="numOfWorkers2" />
+		<result property="numOfWorkers3Plus" column="NumOfWorkers3Plus" />
+		<result property="incomeUnder30k" column="incomeUnder30k" />
+		<result property="income30kto60k" column="income30kto60k" />
+		<result property="income60kto100k" column="income60kto100k" />
+		<result property="income100kto150k" column="income100kto150k" />
+		<result property="income150kPlus" column="income150kPlus" />
+		<result property="incomeUnder10k" column="incomeUnder10k" />
+		<result property="income10kto20k" column="income10kto20k" />
+		<result property="income20kto30k" column="income20kto30k" />
+		<result property="income30kto40k" column="income30kto40k" />
+		<result property="income40kto50k" column="income40kto50k" />
+		<result property="income50kto60k" column="income50kto60k" />
+		<result property="income60kto75k" column="income60kto75k" />
+		<result property="income75kto100k" column="income75kto100k" />
+		<result property="income60kUnder" column="income60kUnder" />
+		<result property="singleFamily" column="singleFamily" />
+		<result property="multiUnit" column="multiUnit" />
+		<result property="mobileHome" column="mobileHome" />
+		<result property="numOfOwned" column="numOfOwned" />
+		<result property="numOfRent" column="numOfRent" />
+		
+		<result property="hh1per0wkr" column= "hh1per0wkr" />
+		<result property="hh1per1wkr" column= "hh1per1wkr" />
+		<result property="hh2per0wkr" column= "hh2per0wkr" />
+		<result property="hh2per1wkr" column= "hh2per1wkr" />
+		<result property="hh2per2wkr" column= "hh2per2wkr" />
+		<result property="hh3per0wkr" column= "hh3per0wkr" />
+		<result property="hh3per1wkr" column= "hh3per1wkr" />
+		<result property="hh3per2wkr" column= "hh3per2wkr" />
+		<result property="hh3per3wkr" column= "hh3per3wkr" />
+		<result property="hh4plusper0wkr" column= "hh4plusper0wkr" />
+		<result property="hh4plusper1wkr" column= "hh4plusper1wkr" />
+		<result property="hh4plusper2wkr" column= "hh4plusper2wkr" />
+		<result property="hh4plusper3wkr" column= "hh4plusper3wkr" />
+		<result property="hh1perHhinc0to30k" column= "hh1perHhinc0to30k" />
+		<result property="hh1perHhinc30kto60k" column= "hh1perHhinc30kto60k" />
+		<result property="hh1perHhinc60kto100k" column= "hh1perHhinc60kto100k" />
+		<result property="hh1perHhinc100kplus" column= "hh1perHhinc100kplus" />
+		<result property="hh2perHhinc0to30k" column= "hh2perHhinc0to30k" />
+		<result property="hh2perHhinc30kto60k" column= "hh2perHhinc30kto60k" />
+		<result property="hh2perHhinc60kto100k" column= "hh2perHhinc60kto100k" />
+		<result property="hh2perHhinc100kplus" column= "hh2perHhinc100kplus" />
+		<result property="hh3perHhinc0to30k" column= "hh3perHhinc0to30k" />
+		<result property="hh3perHhinc30kto60k" column= "hh3perHhinc30kto60k" />
+		<result property="hh3perHhinc60kto100k" column= "hh3perHhinc60kto100k" />
+		<result property="hh3perHhinc100kplus" column= "hh3perHhinc100kplus" />
+		<result property="hh4plusperHhinc0to30k" column= "hh4plusperHhinc0to30k" />
+		<result property="hh4plusperHhinc30kto60k" column= "hh4plusperHhinc30kto60k" />
+		<result property="hh4plusperHhinc60kto100k" column= "hh4plusperHhinc60kto100k" />
+		<result property="hh4plusperHhinc100kplus" column= "hh4plusperHhinc100kplus" />
+		<result property="hh0wkrHhinc0kto30k" column= "hh0wkrHhinc0kto30k" />
+		<result property="hh0wkrHhinc30kto60k" column= "hh0wkrHhinc30kto60k" />
+		<result property="hh0wkrHhinc60kto100k" column= "hh0wkrHhinc60kto100k" />
+		<result property="hh0wkrHhinc100kPlus" column= "hh0wkrHhinc100kPlus" />
+		<result property="hh1wkrHhinc0kto30k" column= "hh1wkrHhinc0kto30k" />
+		<result property="hh1wkrHhinc30kto60k" column= "hh1wkrHhinc30kto60k" />
+		<result property="hh1wkrHhinc60kto100k" column= "hh1wkrHhinc60kto100k" />
+		<result property="hh1wkrHhinc100kPlus" column= "hh1wkrHhinc100kPlus" />
+		<result property="hh2wkrHhinc0kto30k" column= "hh2wkrHhinc0kto30k" />
+		<result property="hh2wkrHhinc30kto60k" column= "hh2wkrHhinc30kto60k" />
+		<result property="hh2wkrHhinc60kto100k" column= "hh2wkrHhinc60kto100k" />
+		<result property="hh2wkrHhinc100kPlus" column= "hh2wkrHhinc100kPlus" />
+		<result property="hh3wkrHhinc0kto30k" column= "hh3wkrHhinc0kto30k" />
+		<result property="hh3wkrHhinc30kto60k" column= "hh3wkrHhinc30kto60k" />
+		<result property="hh3wkrHhinc60kto100k" column= "hh3wkrHhinc60kto100k" />
+		<result property="hh3wkrHhinc100kPlus" column= "hh3wkrHhinc100kPlus" />		
+		
+		<result property="numPersonsHhUnivs" column="numPersonsHh" />
+		<result property="numPersonsFamilyHh" column="numPersonsFamilyHh" />
+		<result property="numPersonsNonFamilyHh" column="numPersonsNonFamilyHh" />
+		<result property="numPersonsIncomeBelowPoverty" column="numPersonsIncomeBelowPoverty" />
+		<result property="numPersonsFamilyHhUnivs" column="numPersonsFamilyHh" />
+		<result property="numOfPersonsAsHolders" column="numOfPersonsAsHolders" />
+		<result property="numOfPersonsAsSpouse" column="numOfPersonsAsSpouse" />
+		<result property="numOfPersonsAsChild" column="numOfPersonsAsChild" />
+		<result property="numOfPersonsAsOthers" column="numOfPersonsAsOthers" />
+		<result property="numOfPersonsNotRelatedToHolder" column="numOfPersonsNotRelatedToHolder" />
+		<result property="numOfPersonsGQIncludedUnivs" column="numOfPersonsGQIncluded" />
+		<result property="male" column="male" />
+		<result property="female" column="female" />
+		<result property="age0to5" column="age0to5" />
+		<result property="age3PlusUnivs" column="age3Plus" />
+		<result property="age6to11" column="age6to11" />
+		<result property="age12to15" column="age12to15" />
+		<result property="age16PlusUnivs" column="age16Plus" />
+		<result property="age16to17" column="age16to17" />
+		<result property="age18to24" column="age18to24" />
+		<result property="age25to34" column="age25to34" />
+		<result property="age35to49" column="age35to49" />
+		<result property="age50to64" column="age50to64" />
+		<result property="age65to79" column="age65to79" />
+		<result property="age80Plus" column="age80Plus" />
+		<result property="age17AndUnder" column="age17AndUnder" />
+		<result property="age18to64" column="age18to64" />
+		<result property="age65Plus" column="age65Plus" />
+		<result property="marriedSpousePres" column="marriedSpousePres" />
+		<result property="hispanic" column="hispanic" />
+		<result property="whiteAlone" column="whiteAlone" />
+		<result property="blackAlone" column="blackAlone" />
+		<result property="indiAlaskaAlone" column="indiAlaskaAlone" />
+		<result property="asianAlone" column="asianAlone" />
+		<result property="islanderAlone" column="islanderAlone" />
+		<result property="otherRaceAloneOrTwoPlusRaces" column="otherRaceAloneOrTwoPlusRaces" />
+		<result property="worked27plusWksUnivs" column="worked27plusWks" />
+		<result property="worked27plusWks35PlusHrsPerWk" column="worked27plusWks35PlusHrsPerWk" />
+		<result property="worked27plusWks15to34HrsPerWk" column="worked27plusWks15to34HrsPerWk" />
+		<result property="worked27plusWks1to14HrsPerWk" column="worked27plusWks1to14HrsPerWk" />
+		<result property="civilianEmployed" column="civilianEmployed" />
+		<result property="militaryEmployed" column="militaryEmployed" />
+		<result property="unemployed" column="unemployed" />
+		<result property="notInLaborForce" column="notInLaborForce" />
+		
+		<result property="occpMng" column= "occpMng" />
+		<result property="occpService" column= "occpService" />
+		<result property="occpSales" column= "occpSales" />
+		<result property="occpConstruct" column= "occpConstruct" />
+		<result property="occpTransport" column= "occpTransport" />	
+		<result property="enrolledNurseyToGrade12" column="enrolledNurseyToGrade12" />
+		<result property="enrollPostSecondary" column="enrollPostSecondary" />
+	</resultMap>
+	
+	<resultMap class="AcsPumaValMetrics" id="acsValResult">
+		<result property="puma" column="puma" />
+		<result property="hhsUnivs" column="hhs" />
+		<result property="famHhs" column="famHhs" />
+		<result property="nonFamHhs" column="nonFamHhs" />
+		<result property="nonFamHhsbyHolderAge15to64" column="nonFamHhsbyHolderAge15to64" />
+		<result property="nonFamHhsbyHolderAge65Plus" column="nonFamHhsbyHolderAge65Plus" />	
+		<result property="hh1Person" column="hh1Person" />
+		<result property="hh2Persons" column="hh2Persons" />
+		<result property="hh3Persons" column="hh3Persons" />
+		<result property="hh4PlusPersons" column="hh4PlusPersons" />
+		<result property="famHhsOwnChildUnder18" column="famHhsOwnChildUnder18" />
+		<result property="famHhsNoOwnChildUnder18" column="famHhsNoOwnChildUnder18" />
+		<result property="famHhsAge18UnderPres" column="famHhsAge18UnderPres" />
+		<result property="famHhsNoAge18UnderPres" column="famHhsNoAge18UnderPres" />
+		<result property="nonFamHhsAge18UnderPres" column="nonFamHhsAge18UnderPres" />
+		<result property="nonFamHhsNoAge18UnderPres" column="nonFamHhsNoAge18UnderPres" />
+		<result property="hhs1PlusAge65Plus" column="hhs1PlusAge65Plus" />
+		<result property="hhsNoAge65Plus" column="hhsNoAge65Plus" />
+		<result property="hhs1PersonAge65Plus" column="hhs1PersonAge65Plus" />
+		<result property="fam2PlusPersons1PlusAge65Plus" column="fam2PlusPersons1PlusAge65Plus" />
+		<result property="nonFam2PlusPersons1PlusAge65Plus" column="nonFam2PlusPersons1PlusAge65Plus" />
+		<result property="hhs1PersonAge65Under" column="hhs1PersonAge65Under" />
+		<result property="fam2PlusPersonsNoAge65Plus" column="fam2PlusPersonsNoAge65Plus" />
+		<result property="nonFam2PlusPersonsNoAge65Plus" column="nonFam2PlusPersonsNoAge65Plus" />
+		<result property="numOfWorkers0" column="numOfWorkers0" />
+		<result property="numOfWorkers1" column="numOfWorkers1" />
+		<result property="numOfWorkers2" column="numOfWorkers2" />
+		<result property="numOfWorkers3Plus" column="NumOfWorkers3Plus" />
+		<result property="incomeUnder30k" column="incomeUnder30k" />
+		<result property="income30kto60k" column="income30kto60k" />
+		<result property="income60kto100k" column="income60kto100k" />
+		<result property="income100kto150k" column="income100kto150k" />
+		<result property="income150kPlus" column="income150kPlus" />
+		<result property="incomeUnder10k" column="incomeUnder10k" />
+		<result property="income10kto20k" column="income10kto20k" />
+		<result property="income20kto30k" column="income20kto30k" />
+		<result property="income30kto40k" column="income30kto40k" />
+		<result property="income40kto50k" column="income40kto50k" />
+		<result property="income50kto60k" column="income50kto60k" />
+		<result property="income60kto75k" column="income60kto75k" />
+		<result property="income75kto100k" column="income75kto100k" />
+		<result property="income60kUnder" column="income60kUnder" />
+		<result property="singleFamily" column="singleFamily" />
+		<result property="multiUnit" column="multiUnit" />
+		<result property="mobileHome" column="mobileHome" />
+		<result property="numOfOwned" column="numOfOwned" />
+		<result property="numOfRent" column="numOfRent" />
+		
+		<result property="hh1per0wkr" column="hh1per0wkr" />
+		<result property="hh1per1wkr" column="hh1per1wkr" />
+		<result property="hh2per0wkr" column="hh2per0wkr" />
+		<result property="hh2per1wkr" column="hh2per1wkr" />
+		<result property="hh2per2wkr" column="hh2per2wkr" />
+		<result property="hh3per0wkr" column="hh3per0wkr" />
+		<result property="hh3per1wkr" column="hh3per1wkr" />
+		<result property="hh3per2wkr" column="hh3per2wkr" />
+		<result property="hh3per3wkr" column="hh3per3wkr" />
+		<result property="hh4plusper0wkr" column="hh4plusper0wkr" />
+		<result property="hh4plusper1wkr" column="hh4plusper1wkr" />
+		<result property="hh4plusper2wkr" column="hh4plusper2wkr" />
+		<result property="hh4plusper3wkr" column="hh4plusper3wkr" />
+		<!--		
+		<result property="hh1perHhinc0to30k" column="hh1perHhinc0to30k" />
+		<result property="hh1perHhinc30kto60k" column="hh1perHhinc30kto60k" />
+		<result property="hh1perHhinc60kto100k" column="hh1perHhinc60kto100k" />
+		<result property="hh1perHhinc100kplus" column="hh1perHhinc100kplus" />
+		<result property="hh2perHhinc0to30k" column="hh2perHhinc0to30k" />
+		<result property="hh2perHhinc30kto60k" column="hh2perHhinc30kto60k" />
+		<result property="hh2perHhinc60kto100k" column="hh2perHhinc60kto100k" />
+		<result property="hh2perHhinc100kplus" column= "hh2perHhinc100kplus" />
+		<result property="hh3perHhinc0to30k" column= "hh3perHhinc0to30k" />
+		<result property="hh3perHhinc30kto60k" column= "hh3perHhinc30kto60k" />
+		<result property="hh3perHhinc60kto100k" column= "hh3perHhinc60kto100k" />
+		<result property="hh3perHhinc100kplus" column= "hh3perHhinc100kplus" />
+		<result property="hh4plusperHhinc0to30k" column= "hh4plusperHhinc0to30k" />
+		<result property="hh4plusperHhinc30kto60k" column= "hh4plusperHhinc30kto60k" />
+		<result property="hh4plusperHhinc60kto100k" column= "hh4plusperHhinc60kto100k" />
+		<result property="hh4plusperHhinc100kplus" column= "hh4plusperHhinc100kplus" />
+		<result property="hh0wkrHhinc0kto30k" column= "hh0wkrHhinc0kto30k" />
+		<result property="hh0wkrHhinc30kto60k" column= "hh0wkrHhinc30kto60k" />
+		<result property="hh0wkrHhinc60kto100k" column= "hh0wkrHhinc60kto100k" />
+		<result property="hh0wkrHhinc100kPlus" column= "hh0wkrHhinc100kPlus" />
+		<result property="hh1wkrHhinc0kto30k" column= "hh1wkrHhinc0kto30k" />
+		<result property="hh1wkrHhinc30kto60k" column= "hh1wkrHhinc30kto60k" />
+		<result property="hh1wkrHhinc60kto100k" column= "hh1wkrHhinc60kto100k" />
+		<result property="hh1wkrHhinc100kPlus" column= "hh1wkrHhinc100kPlus" />
+		<result property="hh2wkrHhinc0kto30k" column= "hh2wkrHhinc0kto30k" />
+		<result property="hh2wkrHhinc30kto60k" column= "hh2wkrHhinc30kto60k" />
+		<result property="hh2wkrHhinc60kto100k" column= "hh2wkrHhinc60kto100k" />
+		<result property="hh2wkrHhinc100kPlus" column= "hh2wkrHhinc100kPlus" />
+		<result property="hh3wkrHhinc0kto30k" column= "hh3wkrHhinc0kto30k" />
+		<result property="hh3wkrHhinc30kto60k" column= "hh3wkrHhinc30kto60k" />
+		<result property="hh3wkrHhinc60kto100k" column= "hh3wkrHhinc60kto100k" />
+		<result property="hh3wkrHhinc100kPlus" column= "hh3wkrHhinc100kPlus" />		
+		-->
+		<result property="numPersonsHhUnivs" column="numPersonsHh" />
+		<result property="numPersonsFamilyHh" column="numPersonsFamilyHh" />
+		<result property="numPersonsNonFamilyHh" column="numPersonsNonFamilyHh" />
+		<result property="numPersonsIncomeBelowPoverty" column="numPersonsIncomeBelowPoverty" />
+		<result property="numPersonsFamilyHhUnivs" column="numPersonsFamilyHh" />
+		<result property="numOfPersonsAsHolders" column="numOfPersonsAsHolders" />
+		<result property="numOfPersonsAsSpouse" column="numOfPersonsAsSpouse" />
+		<result property="numOfPersonsAsChild" column="numOfPersonsAsChild" />
+		<result property="numOfPersonsAsOthers" column="numOfPersonsAsOthers" />
+		<result property="numOfPersonsNotRelatedToHolder" column="numOfPersonsNotRelatedToHolder" />
+		<result property="numOfPersonsGQIncludedUnivs" column="numOfPersonsGQIncluded" />
+		<result property="male" column="male" />
+		<result property="female" column="female" />
+		<result property="age3PlusUnivs" column="age3Plus" />		
+		<result property="age18to24" column="age18to24" />
+		<result property="age25to34" column="age25to34" />
+		<result property="age35to49" column="age35to49" />
+		<result property="age50to64" column="age50to64" />
+		<result property="age65to79" column="age65to79" />
+		<result property="age80Plus" column="age80Plus" />
+		<result property="age17AndUnder" column="age17AndUnder" />
+		<result property="age18to64" column="age18to64" />
+		<result property="age65Plus" column="age65Plus" />		
+		<result property="hispanic" column="hispanic" />
+		<result property="whiteAlone" column="whiteAlone" />
+		<result property="blackAlone" column="blackAlone" />
+		<result property="indiAlaskaAlone" column="indiAlaskaAlone" />
+		<result property="asianAlone" column="asianAlone" />
+		<result property="islanderAlone" column="islanderAlone" />
+		<result property="otherRaceAloneOrTwoPlusRaces" column="otherRaceAloneOrTwoPlusRaces" />
+		<result property="worked27plusWksUnivs" column="worked27plusWks" />
+		<result property="worked27plusWks35PlusHrsPerWk" column="worked27plusWks35PlusHrsPerWk" />
+		<result property="worked27plusWks15to34HrsPerWk" column="worked27plusWks15to34HrsPerWk" />
+		<result property="worked27plusWks1to14HrsPerWk" column="worked27plusWks1to14HrsPerWk" />
+		<result property="age16PlusUnivs" column="age16Plus" />
+		<result property="civilianEmployed" column="civilianEmployed" />
+		<result property="militaryEmployed" column="militaryEmployed" />
+		<result property="unemployed" column="unemployed" />
+		<result property="notInLaborForce" column="notInLaborForce" />
+		
+		<result property="occpMng" column= "occpMng" />
+		<result property="occpService" column= "occpService" />
+		<result property="occpSales" column= "occpSales" />
+		<result property="occpConstruct" column= "occpConstruct" />
+		<result property="occpTransport" column= "occpTransport" />		
+		
+		<result property="enrolledNurseyToGrade12" column="enrolledNurseyToGrade12" />
+		<result property="enrollPostSecondary" column="enrollPostSecondary" />
+	</resultMap>
+
+	<sql id="select-stmt-from-PopSyn-census">
+	<![CDATA[
+	 
+     WITH T AS
+        (
+       SELECT
+        p.household_serial_no
+        ,COUNT(*) as num_people
+        ,SUM(case when p.age < 18 THEN 1 ELSE 0 END) as num_children
+        ,SUM(case when p.relationship=1 and p.age between 15 and 64 then 1 else 0 end ) AS isHolderAge15to64
+        ,SUM(case when p.relationship=1 and p.age >=65 then 1 else 0 end ) AS isHolderAge65Plus  
+        ,SUM(case when p.employ_type = 1 OR p.employ_type = 2 THEN 1 ELSE 0 END) as num_of_workers       
+        ,SUM(case when p.relationship = 3 and p.age<18 THEN 1 ELSE 0 END) as own_child
+        ,SUM(case when p.age <= 5 THEN 1 ELSE 0 END) as age_0_to_5
+        ,SUM(case when p.age >= 3 THEN 1 ELSE 0 END) as age_3_plus
+        ,SUM(case when p.age >= 6 and p.age <= 11 THEN 1 ELSE 0 END) as age_6_to_11
+        ,SUM(case when p.age >= 12 and p.age <= 15 THEN 1 ELSE 0 END) as age_12_to_15
+        ,SUM(case when p.age >= 16  THEN 1 ELSE 0 END) as age_16_plus        
+        ,SUM(case when p.age >= 16 and p.age <= 17 THEN 1 ELSE 0 END) as age_16_to_17
+        ,SUM(case when p.age >= 18 and p.age <= 24 THEN 1 ELSE 0 END) as age_18_to_24
+        ,SUM(case when p.age >= 25 and p.age <= 34 THEN 1 ELSE 0 END) as age_25_to_34
+        ,SUM(case when p.age >= 35 and p.age <= 49 THEN 1 ELSE 0 END) as age_35_to_49
+        ,SUM(case when p.age >= 50 and p.age <= 64 THEN 1 ELSE 0 END) as age_50_to_64
+        ,SUM(case when p.age >= 65 and p.age <= 79 THEN 1 ELSE 0 END) as age_65_to_79
+        ,SUM(case when p.age >= 80 THEN 1 ELSE 0 END) as age_80_plus
+        ,SUM(case when p.age <= 17 THEN 1 ELSE 0 END) as age_17_and_under
+        ,SUM(case when p.age >= 18 and p.age <=64 THEN 1 ELSE 0 END) as age_18_to_64
+        ,SUM(case when p.age >= 65 THEN 1 ELSE 0 END) as age_65_plus           
+        ,SUM(case when p.male = 1 then 1 else 0 end) as male
+        ,SUM(case when p.male = 0 then 1 else 0 end) as female
+        ,SUM(case when unit_type = 1 then 1 else 0 end) AS numPersonsHh
+        ,SUM(case when unit_type = 1 and family = 1 then 1 else 0 end) AS numPersonsFamilyHh
+        ,SUM(case when unit_type = 1 and family = 0 then 1 else 0 end) AS numPersonsNonFamilyHh
+        ,SUM(case when poverty = 1 then 1 else 0 end) as numPersonsIncomeBelowPoverty
+        ,SUM(case when relationship = 1 and family=1 then 1 else 0 end) as numOfPersonsAsHolders
+        ,SUM(case when relationship = 2 and family=1 then 1 else 0 end) as numOfPersonsAsSpouse
+        ,SUM(case when relationship = 3 and family=1 then 1 else 0 end) as numOfPersonsAsChild
+        ,SUM(case when relationship = 4 and family=1 then 1 else 0 end) as numOfPersonsAsOthers
+        ,SUM(case when relationship = 5 and family=1 then 1 else 0 end) as numOfPersonsNotRelatedToHolder
+        ,SUM(1) as numOfPersonsGQIncluded
+        ,SUM(case when married = 1 then 1 else 0 end) as marriedSpousePres
+        ,SUM(case when hispanic = 1 then 1 else 0 end) as hispanic
+        ,SUM(case when race = 1 and hispanic = 0 then 1 else 0 end) as whiteAlone
+        ,SUM(case when race = 2 and hispanic = 0 then 1 else 0 end) as blackAlone
+        ,SUM(case when race between 3 and 5 and hispanic = 0 then 1 else 0 end) as indiAlaskaAlone
+        ,SUM(case when race = 6 and hispanic = 0 then 1 else 0 end) as asianAlone
+        ,SUM(case when race = 7 and hispanic = 0 then 1 else 0 end) as islanderAlone
+        ,SUM(case when race between 8 and 9 and hispanic = 0 then 1 else 0 end) as otherRaceAloneOrTwoPlusRaces
+        ,SUM(case when work_hour_type between 1 and 3 then 1 else 0 end) as worked27plusWks
+        ,SUM(case when work_hour_type = 1 then 1 else 0 end) as worked27plusWks35PlusHrsPerWk
+        ,SUM(case when work_hour_type = 2 then 1 else 0 end) as worked27plusWks15to34HrsPerWk
+        ,SUM(case when work_hour_type = 3 then 1 else 0 end) as worked27plusWks1to14HrsPerWk
+        ,SUM(case when employ_type = 1 then 1 else 0 end) as civilianEmployed
+        ,SUM(case when employ_type = 2 then 1 else 0 end) as militaryEmployed
+        ,SUM(case when employ_type = 3 then 1 else 0 end) as unemployed
+        ,SUM(case when employ_type = 4 then 1 else 0 end) as notInLaborForce
+        ,SUM(case when occupation = 1 then 1 else 0 end) as num_of_occp_mng
+        ,SUM(case when occupation = 2 then 1 else 0 end) as num_of_occp_service
+        ,SUM(case when occupation = 3 then 1 else 0 end) as num_of_occp_sales
+        ,SUM(case when occupation = 4 then 1 else 0 end) as num_of_occp_construct
+        ,SUM(case when occupation = 5 then 1 else 0 end) as num_of_occp_transport        
+        ,SUM(case when grade between 1 and 3 then 1 else 0 end) as enrolledNurseyToGrade12
+        ,SUM(case when grade = 4 then 1 else 0 end) as enrollPostSecondary      
+        
+        FROM person p join household h
+        on p.household_serial_no = h.serial_no and p.source_id = h.source_id
+        WHERE p.source_id = #sourceId#
+        group by p.household_serial_no
+        )
+
+	SELECT puma	
+		,SUM(CASE WHEN unit_type=1 THEN hw.weight ELSE 0 END) AS hhs
+		,SUM(CASE WHEN unit_type=1 and hh.family = 1 THEN weight ELSE 0 END) AS famHhs
+		,SUM(CASE WHEN unit_type=1 and hh.family = 0 THEN weight ELSE 0 END) AS nonFamHhs
+		,SUM(CASE WHEN isHolderAge15to64 = 1 THEN weight ELSE 0 END) AS  hhsbyHolderAge15to64
+		,SUM(CASE WHEN isHolderAge65Plus = 1 THEN weight ELSE 0 END) AS  hhsbyHolderAge65Plus
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 THEN weight ELSE 0 END) AS hh1Person
+	    ,SUM(CASE WHEN unit_type=1 and num_people = 2 THEN weight ELSE 0 END) AS hh2Persons
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 THEN weight ELSE 0 END) AS hh3Persons
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 THEN weight ELSE 0 END) AS hh4PlusPersons
+		,SUM(CASE WHEN family = 1 and isHolderAge15to64 = 1 THEN weight ELSE 0 END) AS  famHhsbyHolderAge15to64
+		,SUM(CASE WHEN family = 1 and isHolderAge65Plus = 1 THEN weight ELSE 0 END) AS  famHhsbyHolderAge65Plus
+		,SUM(CASE WHEN family = 0 and isHolderAge15to64 = 1 THEN weight ELSE 0 END) AS  nonFamHhsbyHolderAge15to64
+		,SUM(CASE WHEN family = 0 and isHolderAge65Plus = 1 THEN weight ELSE 0 END) AS  nonFamHhsbyHolderAge65Plus
+	
+		,SUM(CASE WHEN family = 1 and own_child > 0 THEN weight ELSE 0 END) AS famHhsOwnChildUnder18
+		,SUM(CASE WHEN family = 1 and own_child = 0 THEN weight ELSE 0 END) AS famHhsNoOwnChildUnder18
+		,SUM(CASE WHEN family = 1 and num_children > 0 THEN weight ELSE 0 END) AS famHhsAge18UnderPres
+		,SUM(CASE WHEN family = 1 and num_children  = 0 THEN weight ELSE 0 END) AS famHhsNoAge18UnderPres
+		,SUM(CASE WHEN unit_type = 1 and family = 0 and num_children > 0 THEN weight ELSE 0 END) AS nonFamHhsAge18UnderPres
+		,SUM(CASE WHEN unit_type = 1 and family = 0 and num_children  = 0 THEN weight ELSE 0 END) AS nonFamHhsNoAge18UnderPres
+		,SUM(CASE WHEN unit_type = 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS hhs1PlusAge65Plus
+		,SUM(CASE WHEN unit_type = 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS hhsNoAge65Plus
+		,SUM(CASE WHEN unit_type = 1 and num_people = 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS hhs1PersonAge65Plus
+		,SUM(CASE WHEN unit_type = 1 and family = 1 and num_people > 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS fam2PlusPersons1PlusAge65Plus
+		,SUM(CASE WHEN unit_type = 1 and family = 0 and num_people > 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS nonFam2PlusPersons1PlusAge65Plus
+		,SUM(CASE WHEN unit_type = 1 and num_people = 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS hhs1PersonAge65Under
+		,SUM(CASE WHEN unit_type = 1 and family = 1 and num_people > 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS fam2PlusPersonsNoAge65Plus
+		,SUM(CASE WHEN unit_type = 1 and family = 0 and num_people > 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS nonFam2PlusPersonsNoAge65Plus
+		,SUM(CASE WHEN unit_type = 1 and num_of_workers = 0 THEN weight ELSE 0 END) AS numOfWorkers0
+		,SUM(CASE WHEN unit_type = 1 and num_of_workers = 1 THEN weight ELSE 0 END) AS numOfWorkers1
+		,SUM(CASE WHEN unit_type = 1 and num_of_workers = 2 THEN weight ELSE 0 END) AS numOfWorkers2
+		,SUM(CASE WHEN unit_type = 1 and num_of_workers >= 3 THEN weight ELSE 0 END) AS numOfWorkers3Plus
+		,SUM(CASE WHEN unit_type = 1 and adj_income < 30000 THEN weight ELSE 0 END) AS incomeUnder30k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 30000 and adj_income < 60000 THEN weight ELSE 0 END) AS income30kto60k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 60000 and adj_income < 100000 THEN weight ELSE 0 END) AS income60kto100k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 100000 and adj_income < 150000 THEN weight ELSE 0 END) AS income100kto150k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 150000 THEN weight ELSE 0 END) AS income150kPlus
+		,SUM(CASE WHEN unit_type = 1 and adj_income < 10000 THEN weight ELSE 0 END) AS incomeUnder10k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 10000 and adj_income < 20000 THEN weight ELSE 0 END) AS income10kto20k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 20000 and adj_income < 30000 THEN weight ELSE 0 END) AS income20kto30k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 30000 and adj_income < 40000 THEN weight ELSE 0 END) AS income30kto40k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 40000 and adj_income < 50000 THEN weight ELSE 0 END) AS income40kto50k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 50000 and adj_income < 60000 THEN weight ELSE 0 END) AS income50kto60k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 60000 and adj_income < 75000 THEN weight ELSE 0 END) AS income60kto75k
+		,SUM(CASE WHEN unit_type = 1 and adj_income >= 75000 and adj_income < 100000 THEN weight ELSE 0 END) AS income75kto100k
+		,SUM(CASE WHEN unit_type = 1 and adj_income < 60000 THEN weight ELSE 0 END) AS income60kUnder
+		,SUM(CASE WHEN unit_type = 1 and dwelling_type = 1 THEN weight ELSE 0 END) AS singleFamily
+		,SUM(CASE WHEN unit_type = 1 and dwelling_type = 2 THEN weight ELSE 0 END) AS multiUnit
+		,SUM(CASE WHEN unit_type = 1 and dwelling_type = 3 THEN weight ELSE 0 END) AS mobileHome
+		,SUM(CASE WHEN unit_type = 1 and owner_occ = 1 THEN weight ELSE 0 END) AS numOfOwned
+		,SUM(CASE WHEN unit_type = 1 and owner_occ = 0 THEN weight ELSE 0 END) AS numOfRent 
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and num_of_workers = 0 then weight else 0 END) AS hh1per0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and num_of_workers = 1 then weight else 0 END) AS hh1per1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and num_of_workers = 0 then weight else 0 END) AS hh2per0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and num_of_workers = 1 then weight else 0 END) AS hh2per1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and num_of_workers = 2 then weight else 0 END) AS hh2per2wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 0 then weight else 0 END) AS hh3per0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 1 then weight else 0 END) AS hh3per1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 2 then weight else 0 END) AS hh3per2wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 3 then weight else 0 END) AS hh3per3wkr
+	
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers = 0 then weight else 0 END) AS hh4plusper0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers = 1 then weight else 0 END) AS hh4plusper1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers = 2 then weight else 0 END) AS hh4plusper2wkr
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers >= 3 then weight else 0 END) AS hh4plusper3wkr
+		
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and adj_income < 30000 then weight else 0 END) AS hh1perHhinc0to30k
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) AS hh1perHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) AS hh1perHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and adj_income >= 100000 then weight else 0 END) AS hh1perHhinc100kplus
+		
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and adj_income < 30000 then weight else 0 END)  AS hh2perHhinc0to30k
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) AS hh2perHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) AS hh2perHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and adj_income >= 100000 then weight else 0 END) AS hh2perHhinc100kplus
+		
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and adj_income < 30000 then weight else 0 END) AS hh3perHhinc0to30k
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) AS hh3perHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) AS hh3perHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and adj_income >= 100000 then weight else 0 END) hh3perHhinc100kplus
+		
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and adj_income < 30000 then weight else 0 END) AS hh4plusperHhinc0to30k
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) AS hh4plusperHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) AS hh4plusperHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and adj_income >= 100000 then weight else 0 END) AS hh4plusperHhinc100kplus
+		
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 0 and adj_income < 30000 then weight else 0 END) AS hh0wkrHhinc0kto30k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 0 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) AS hh0wkrHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 0 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) AS hh0wkrHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 0 and adj_income >= 100000 then weight else 0 END) hh0wkrHhinc100kplus
+		
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 1 and adj_income < 30000 then weight else 0 END) hh1wkrHhinc0kto30k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 1 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) hh1wkrHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 1 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) hh1wkrHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 1 and adj_income >= 100000 then weight else 0 END) hh1wkrHhinc100kplus
+		
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 2 and adj_income < 30000 then weight else 0 END) hh2wkrHhinc0kto30k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 2 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) hh2wkrHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 2 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) hh2wkrHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers = 2 and adj_income >= 100000 then weight else 0 END) hh2wkrHhinc100kplus
+				
+		,SUM(CASE WHEN unit_type=1 and num_of_workers >= 3 and adj_income < 30000 then weight else 0 END) hh3wkrHhinc0kto30k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers >= 3 and adj_income >= 30000 and adj_income < 60000 then weight else 0 END) hh3wkrHhinc30kto60k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers >= 3 and adj_income >= 60000 and adj_income < 100000 then weight else 0 END) hh3wkrHhinc60kto100k
+		,SUM(CASE WHEN unit_type=1 and num_of_workers >= 3 and adj_income >= 100000 then weight else 0 END) hh3wkrHhinc100kplus
+		      
+		,SUM(numPersonsHh*weight) as  numPersonsHh
+		,SUM(numPersonsFamilyHh*weight) as  numPersonsFamilyHh
+		,SUM(numPersonsNonFamilyHh*weight) as  numPersonsNonFamilyHh
+		,SUM(numPersonsIncomeBelowPoverty*weight) as  numPersonsIncomeBelowPoverty
+		,SUM(numPersonsFamilyHh*weight) as  numPersonsFamilyHhUniv
+		,SUM(numOfPersonsAsHolders*weight) as  numOfPersonsAsHolders
+		,SUM(numOfPersonsAsSpouse*weight) as  numOfPersonsAsSpouse
+		,SUM(numOfPersonsAsChild*weight) as  numOfPersonsAsChild
+		,SUM(numOfPersonsAsOthers*weight) as  numOfPersonsAsOthers
+		,SUM(numOfPersonsNotRelatedToHolder*weight) as  numOfPersonsNotRelatedToHolder
+		,SUM(numOfPersonsGQIncluded*weight) as  numOfPersonsGQIncluded
+		,SUM(male*weight) as male, SUM(female*weight) as female 
+		,SUM(age_0_to_5*weight) as age0to5, SUM(age_6_to_11*weight) as age6to11, SUM(age_12_to_15*weight) as age12to15
+		,SUM(age_16_to_17*weight) as age16to17, SUM(age_18_to_24*weight) as age18to24, SUM(age_25_to_34*weight) as age25to34
+		,SUM(age_35_to_49*weight) as age35to49, SUM(age_50_to_64*weight) as age50to64, SUM(age_65_to_79*weight) as age65to79
+		,SUM(age_80_plus*weight) as age80Plus 
+		,SUM(age_17_and_under*weight) as age17AndUnder, SUM(age_18_to_64*weight) as age18to64, SUM(age_65_plus*weight) as age65Plus
+		,SUM(marriedSpousePres*weight) as  marriedSpousePres
+		,SUM(hispanic*weight) as  hispanic
+		,SUM(whiteAlone*weight) as  whiteAlone
+		,SUM(blackAlone*weight) as  blackAlone
+		,SUM(indiAlaskaAlone*weight) as  indiAlaskaAlone
+		,SUM(asianAlone*weight) as  asianAlone
+		,SUM(islanderAlone*weight) as  islanderAlone
+		,SUM(otherRaceAloneOrTwoPlusRaces*weight) as  otherRaceAloneOrTwoPlusRaces
+		,SUM(worked27plusWks*weight) as  worked27plusWks
+		,SUM(worked27plusWks35PlusHrsPerWk*weight) as  worked27plusWks35PlusHrsPerWk
+		,SUM(worked27plusWks15to34HrsPerWk*weight) as  worked27plusWks15to34HrsPerWk
+		,SUM(worked27plusWks1to14HrsPerWk*weight) as  worked27plusWks1to14HrsPerWk
+		,SUM(age_16_plus*weight) as age16Plus
+		,SUM(civilianEmployed*weight) as  civilianEmployed
+		,SUM(militaryEmployed*weight) as  militaryEmployed
+		,SUM(unemployed*weight) as  unemployed
+		,SUM(notInLaborForce*weight) as  notInLaborForce
+		
+		,SUM(CASE WHEN num_of_occp_mng > 0 then weight else 0 END) AS occpMng
+		,SUM(CASE WHEN num_of_occp_service > 0 then weight else 0 END) AS occpService
+		,SUM(CASE WHEN num_of_occp_sales > 0 then weight else 0 END) AS occpSales
+		,SUM(CASE WHEN num_of_occp_construct > 0 then weight else 0 END) AS occpConstruct
+		,SUM(CASE WHEN num_of_occp_transport > 0 then weight else 0 END) AS occpTransport
+		,SUM(age_3_plus*weight) as age3Plus
+		,SUM(enrolledNurseyToGrade12*weight) as  enrolledNurseyToGrade12
+		,SUM(enrollPostSecondary*weight) as  enrollPostSecondary
+	
+		from t join dbo.household hh
+		on t.household_serial_no = hh.serial_no
+		join dbo.household_discretized hw
+		on hh.serial_no = hw.household_serial_no 
+		
+	]]>
+	</sql>
+	
+	<sql id="select-stmt-from-PopSyn-acs">
+	<![CDATA[
+	 
+     WITH T AS
+        (
+       SELECT
+        p.household_serial_no
+        ,COUNT(*) as num_people
+        ,SUM(case when p.age < 18 THEN 1 ELSE 0 END) as num_children
+        ,SUM(case when p.relationship=1 and p.age between 15 and 64 then 1 else 0 end ) AS isHolderAge15to64
+        ,SUM(case when p.relationship=1 and p.age >=65 then 1 else 0 end ) AS isHolderAge65Plus  
+        ,SUM(case when p.employ_type = 1 OR p.employ_type = 2 THEN 1 ELSE 0 END) as num_of_workers       
+        ,SUM(case when p.relationship = 3 and p.age<18 THEN 1 ELSE 0 END) as own_child      
+        ,SUM(case when p.age >= 3 THEN 1 ELSE 0 END) as age_3_plus   
+        ,SUM(case when p.age >= 16 and p.age <= 64 THEN 1 ELSE 0 END) as age_16_to_64
+        ,SUM(case when p.age >= 18 and p.age <= 24 THEN 1 ELSE 0 END) as age_18_to_24
+        ,SUM(case when p.age >= 25 and p.age <= 34 THEN 1 ELSE 0 END) as age_25_to_34
+        ,SUM(case when p.age >= 35 and p.age <= 49 THEN 1 ELSE 0 END) as age_35_to_49
+        ,SUM(case when p.age >= 50 and p.age <= 64 THEN 1 ELSE 0 END) as age_50_to_64
+        ,SUM(case when p.age >= 65 and p.age <= 79 THEN 1 ELSE 0 END) as age_65_to_79
+        ,SUM(case when p.age >= 80 THEN 1 ELSE 0 END) as age_80_plus
+        ,SUM(case when p.age <= 17 THEN 1 ELSE 0 END) as age_17_and_under
+        ,SUM(case when p.age >= 16  THEN 1 ELSE 0 END) as age_16_plus
+        ,SUM(case when p.age >= 18 and p.age <= 64 THEN 1 ELSE 0 END) as age_18_to_64
+        ,SUM(case when p.age >= 65 THEN 1 ELSE 0 END) as age_65_plus           
+        ,SUM(case when p.male = 1 then 1 else 0 end) as male
+        ,SUM(case when p.male = 0 then 1 else 0 end) as female
+        ,SUM(case when unit_type = 1 then 1 else 0 end) AS numPersonsHh
+        ,SUM(case when unit_type = 1 and family = 1 then 1 else 0 end) AS numPersonsFamilyHh
+        ,SUM(case when unit_type = 1 and family = 0 then 1 else 0 end) AS numPersonsNonFamilyHh
+        ,SUM(case when poverty = 1 then 1 else 0 end) as numPersonsIncomeBelowPoverty
+        ,SUM(case when relationship = 1 and family=1 then 1 else 0 end) as numOfPersonsAsHolders
+        ,SUM(case when relationship = 2 and family=1 then 1 else 0 end) as numOfPersonsAsSpouse
+        ,SUM(case when relationship = 3 and family=1 then 1 else 0 end) as numOfPersonsAsChild
+        ,SUM(case when relationship = 4 and family=1 then 1 else 0 end) as numOfPersonsAsOthers
+        ,SUM(case when relationship = 5 and family=1 then 1 else 0 end) as numOfPersonsNotRelatedToHolder
+        ,SUM(1) as numOfPersonsGQIncluded    
+        ,SUM(case when hispanic = 1 then 1 else 0 end) as hispanic
+        ,SUM(case when race = 1 and hispanic = 0 then 1 else 0 end) as whiteAlone
+        ,SUM(case when race = 2 and hispanic = 0 then 1 else 0 end) as blackAlone
+        ,SUM(case when race between 3 and 5 and hispanic = 0 then 1 else 0 end) as indiAlaskaAlone
+        ,SUM(case when race = 6 and hispanic = 0 then 1 else 0 end) as asianAlone
+        ,SUM(case when race = 7 and hispanic = 0 then 1 else 0 end) as islanderAlone
+        ,SUM(case when race between 8 and 9 and hispanic = 0 then 1 else 0 end) as otherRaceAloneOrTwoPlusRaces
+        ,SUM(case when work_hour_type between 1 and 3 then 1 else 0 end) as worked27plusWks
+        ,SUM(case when work_hour_type = 1 then 1 else 0 end) as worked27plusWks35PlusHrsPerWk
+        ,SUM(case when work_hour_type = 2 then 1 else 0 end) as worked27plusWks15to34HrsPerWk
+        ,SUM(case when work_hour_type = 3 then 1 else 0 end) as worked27plusWks1to14HrsPerWk
+        ,SUM(case when employ_type = 1 then 1 else 0 end) as civilianEmployed
+        ,SUM(case when employ_type = 2 then 1 else 0 end) as militaryEmployed
+        ,SUM(case when employ_type = 3 then 1 else 0 end) as unemployed
+        ,SUM(case when employ_type = 4 then 1 else 0 end) as notInLaborForce
+        ,SUM(case when occupation = 1 then 1 else 0 end) as num_of_occp_mng
+        ,SUM(case when occupation = 2 then 1 else 0 end) as num_of_occp_service
+        ,SUM(case when occupation = 3 then 1 else 0 end) as num_of_occp_sales
+        ,SUM(case when occupation = 4 then 1 else 0 end) as num_of_occp_construct
+        ,SUM(case when occupation = 5 then 1 else 0 end) as num_of_occp_transport         
+        
+        ,SUM(case when grade between 1 and 3 then 1 else 0 end) as enrolledNurseyToGrade12
+        ,SUM(case when grade = 4 then 1 else 0 end) as enrollPostSecondary      
+        
+        FROM person p join household h
+        on p.household_serial_no = h.serial_no and p.source_id = h.source_id
+        WHERE p.source_id = #sourceId#
+        group by p.household_serial_no
+        )
+
+	SELECT puma	
+		,SUM( CASE WHEN unit_type=1 THEN hw.weight ELSE 0 END) AS hhs
+		,SUM( CASE WHEN unit_type=1 and hh.family = 1 THEN weight ELSE 0 END) AS famHhs
+		,SUM( CASE WHEN unit_type=1 and hh.family = 0 THEN weight ELSE 0 END) AS nonFamHhs		
+		,SUM( CASE WHEN unit_type=1 and num_people = 1 THEN weight ELSE 0 END) AS hh1Person
+	    ,SUM( CASE WHEN unit_type=1 and num_people = 2 THEN weight ELSE 0 END) AS hh2Persons
+		,SUM( CASE WHEN unit_type=1 and num_people = 3 THEN weight ELSE 0 END) AS hh3Persons
+		,SUM( CASE WHEN unit_type=1 and num_people >= 4 THEN weight ELSE 0 END) AS hh4PlusPersons
+		,SUM( CASE WHEN family = 0 and isHolderAge15to64 = 1 THEN weight ELSE 0 END) AS  nonFamHhsbyHolderAge15to64
+		,SUM( CASE WHEN family = 0 and isHolderAge65Plus = 1 THEN weight ELSE 0 END) AS  nonFamHhsbyHolderAge65Plus
+	
+		,SUM( CASE WHEN family = 1 and own_child > 0 THEN weight ELSE 0 END) AS famHhsOwnChildUnder18
+		,SUM( CASE WHEN family = 1 and own_child = 0 THEN weight ELSE 0 END) AS famHhsNoOwnChildUnder18
+		,SUM( CASE WHEN family = 1 and num_children > 0 THEN weight ELSE 0 END) AS famHhsAge18UnderPres
+		,SUM( CASE WHEN family = 1 and num_children  = 0 THEN weight ELSE 0 END) AS famHhsNoAge18UnderPres
+		,SUM( CASE WHEN unit_type = 1 and family = 0 and num_children > 0 THEN weight ELSE 0 END) AS nonFamHhsAge18UnderPres
+		,SUM( CASE WHEN unit_type = 1 and family = 0 and num_children  = 0 THEN weight ELSE 0 END) AS nonFamHhsNoAge18UnderPres
+		,SUM( CASE WHEN unit_type = 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS hhs1PlusAge65Plus
+		,SUM( CASE WHEN unit_type = 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS hhsNoAge65Plus
+		,SUM( CASE WHEN unit_type = 1 and num_people = 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS hhs1PersonAge65Plus
+		,SUM( CASE WHEN unit_type = 1 and family = 1 and num_people > 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS fam2PlusPersons1PlusAge65Plus
+		,SUM( CASE WHEN unit_type = 1 and family = 0 and num_people > 1 and (age_65_to_79+age_80_plus) > 0 THEN weight ELSE 0 END) AS nonFam2PlusPersons1PlusAge65Plus
+		,SUM( CASE WHEN unit_type = 1 and num_people = 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS hhs1PersonAge65Under
+		,SUM( CASE WHEN unit_type = 1 and family = 1 and num_people > 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS fam2PlusPersonsNoAge65Plus
+		,SUM( CASE WHEN unit_type = 1 and family = 0 and num_people > 1 and (age_65_to_79+age_80_plus) = 0 THEN weight ELSE 0 END) AS nonFam2PlusPersonsNoAge65Plus
+		,SUM( CASE WHEN unit_type = 1 and num_of_workers = 0 THEN weight ELSE 0 END) AS numOfWorkers0
+		,SUM( CASE WHEN unit_type = 1 and num_of_workers = 1 THEN weight ELSE 0 END) AS numOfWorkers1
+		,SUM( CASE WHEN unit_type = 1 and num_of_workers = 2 THEN weight ELSE 0 END) AS numOfWorkers2
+		,SUM( CASE WHEN unit_type = 1 and num_of_workers >= 3 THEN weight ELSE 0 END) AS numOfWorkers3Plus
+		,SUM( CASE WHEN unit_type = 1 and adj_income < 30000 THEN weight ELSE 0 END) AS incomeUnder30k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 30000 and adj_income < 60000 THEN weight ELSE 0 END) AS income30kto60k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 60000 and adj_income < 100000 THEN weight ELSE 0 END) AS income60kto100k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 100000 and adj_income < 150000 THEN weight ELSE 0 END) AS income100kto150k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 150000 THEN weight ELSE 0 END) AS income150kPlus
+		,SUM( CASE WHEN unit_type = 1 and adj_income < 10000 THEN weight ELSE 0 END) AS incomeUnder10k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 10000 and adj_income < 20000 THEN weight ELSE 0 END) AS income10kto20k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 20000 and adj_income < 30000 THEN weight ELSE 0 END) AS income20kto30k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 30000 and adj_income < 40000 THEN weight ELSE 0 END) AS income30kto40k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 40000 and adj_income < 50000 THEN weight ELSE 0 END) AS income40kto50k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 50000 and adj_income < 60000 THEN weight ELSE 0 END) AS income50kto60k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 60000 and adj_income < 75000 THEN weight ELSE 0 END) AS income60kto75k
+		,SUM( CASE WHEN unit_type = 1 and adj_income >= 75000 and adj_income < 100000 THEN weight ELSE 0 END) AS income75kto100k
+		,SUM( CASE WHEN unit_type = 1 and adj_income < 60000 THEN weight ELSE 0 END) AS income60kUnder
+		,SUM( CASE WHEN unit_type = 1 and dwelling_type = 1 THEN weight ELSE 0 END) AS singleFamily
+		,SUM( CASE WHEN unit_type = 1 and dwelling_type = 2 THEN weight ELSE 0 END) AS multiUnit
+		,SUM( CASE WHEN unit_type = 1 and dwelling_type = 3 THEN weight ELSE 0 END) AS mobileHome
+		,SUM( CASE WHEN unit_type = 1 and owner_occ = 1 THEN weight ELSE 0 END) AS numOfOwned
+		,SUM( CASE WHEN unit_type = 1 and owner_occ = 0 THEN weight ELSE 0 END) AS numOfRent     
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and num_of_workers = 0 then weight else 0 END) AS hh1per0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 1 and num_of_workers = 1 then weight else 0 END) AS hh1per1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and num_of_workers = 0 then weight else 0 END) AS hh2per0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and num_of_workers = 1 then weight else 0 END) AS hh2per1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 2 and num_of_workers = 2 then weight else 0 END) AS hh2per2wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 0 then weight else 0 END) AS hh3per0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 1 then weight else 0 END) AS hh3per1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 2 then weight else 0 END) AS hh3per2wkr
+		,SUM(CASE WHEN unit_type=1 and num_people = 3 and num_of_workers = 3 then weight else 0 END) AS hh3per3wkr	
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers = 0 then weight else 0 END) AS hh4plusper0wkr
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers = 1 then weight else 0 END) AS hh4plusper1wkr
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers = 2 then weight else 0 END) AS hh4plusper2wkr
+		,SUM(CASE WHEN unit_type=1 and num_people >= 4 and num_of_workers >= 3 then weight else 0 END) AS hh4plusper3wkr
+	   
+		,SUM(numPersonsHh*weight) as  numPersonsHh
+		,SUM(numPersonsFamilyHh*weight) as  numPersonsFamilyHh
+		,SUM(numPersonsNonFamilyHh*weight) as  numPersonsNonFamilyHh	
+		,SUM(numPersonsIncomeBelowPoverty*weight) as  numPersonsIncomeBelowPoverty
+		,SUM(numPersonsFamilyHh*weight) as  numPersonsFamilyHhUniv
+		,SUM(numOfPersonsAsHolders*weight) as  numOfPersonsAsHolders
+		,SUM(numOfPersonsAsSpouse*weight) as  numOfPersonsAsSpouse
+		,SUM(numOfPersonsAsChild*weight) as  numOfPersonsAsChild
+		,SUM(numOfPersonsAsOthers*weight) as  numOfPersonsAsOthers
+		,SUM(numOfPersonsNotRelatedToHolder*weight) as  numOfPersonsNotRelatedToHolder
+		,SUM(numOfPersonsGQIncluded*weight) as  numOfPersonsGQIncluded
+		,SUM(male*weight) as male, SUM(female*weight) as female 
+		,SUM(age_16_to_64*weight) as age16to64
+		,SUM(age_18_to_24*weight) as age18to24, SUM(age_25_to_34*weight) as age25to34
+		,SUM(age_35_to_49*weight) as age35to49, SUM(age_50_to_64*weight) as age50to64, SUM(age_65_to_79*weight) as age65to79
+		,SUM(age_80_plus*weight) as age80Plus 
+		,SUM(age_17_and_under*weight) as age17AndUnder, SUM(age_18_to_64*weight) as age18to64, SUM(age_65_plus*weight) as age65Plus		
+		,SUM(hispanic*weight) as  hispanic
+		,SUM(whiteAlone*weight) as  whiteAlone
+		,SUM(blackAlone*weight) as  blackAlone
+		,SUM(indiAlaskaAlone*weight) as  indiAlaskaAlone
+		,SUM(asianAlone*weight) as  asianAlone
+		,SUM(islanderAlone*weight) as  islanderAlone
+		,SUM(otherRaceAloneOrTwoPlusRaces*weight) as  otherRaceAloneOrTwoPlusRaces
+		,SUM(worked27plusWks*weight) as  worked27plusWks
+		,SUM(worked27plusWks35PlusHrsPerWk*weight) as  worked27plusWks35PlusHrsPerWk
+		,SUM(worked27plusWks15to34HrsPerWk*weight) as  worked27plusWks15to34HrsPerWk
+		,SUM(worked27plusWks1to14HrsPerWk*weight) as  worked27plusWks1to14HrsPerWk
+		,SUM(age_16_plus*weight) as age16Plus
+		,SUM(civilianEmployed*weight) as  civilianEmployed
+		,SUM(militaryEmployed*weight) as  militaryEmployed
+		,SUM(unemployed*weight) as  unemployed
+		,SUM(notInLaborForce*weight) as  notInLaborForce
+		
+		,SUM(CASE WHEN num_of_occp_mng > 0 then weight else 0 END) AS occpMng
+		,SUM(CASE WHEN num_of_occp_service > 0 then weight else 0 END) AS occpService
+		,SUM(CASE WHEN num_of_occp_sales > 0 then weight else 0 END) AS occpSales
+		,SUM(CASE WHEN num_of_occp_construct > 0 then weight else 0 END) AS occpConstruct
+		,SUM(CASE WHEN num_of_occp_transport > 0 then weight else 0 END) AS occpTransport
+		
+		,SUM(age_3_plus*weight) as age3Plus
+		,SUM(enrolledNurseyToGrade12*weight) as  enrolledNurseyToGrade12
+		,SUM(enrollPostSecondary*weight) as  enrollPostSecondary
+	
+		from t join dbo.household hh
+		on t.household_serial_no = hh.serial_no
+		join dbo.household_discretized hw
+		on hh.serial_no = hw.household_serial_no 		
+	]]>
+
+	</sql>
+		
+	<sql id="select-stmt-from-observed-census">
+	<![CDATA[
+	  select
+	  	puma
+		,hhs
+		,famHhs
+		,nonFamHhs
+		,hhsbyHolderAge15to64
+		,hhsbyHolderAge65Plus
+		,famHhsbyHolderAge15to64
+		,famHhsbyHolderAge65Plus
+		,nonFamHhsbyHolderAge15to64
+		,nonFamHhsbyHolderAge65Plus
+		,hh1Person
+		,hh2Persons
+		,hh3Persons
+		,hh4PlusPersons
+		,famHhsOwnChildUnder18
+		,famHhsNoOwnChildUnder18
+		,famHhsAge18UnderPres
+		,famHhsNoAge18UnderPres
+		,nonFamHhsAge18UnderPres
+		,nonFamHhsNoAge18UnderPres
+		,hhs1PlusAge65Plus
+		,hhsNoAge65Plus
+		,hhs1PersonAge65Plus
+		,fam2PlusPersons1PlusAge65Plus
+		,nonFam2PlusPersons1PlusAge65Plus
+		,hhs1PersonAge65Under
+		,fam2PlusPersonsNoAge65Plus
+		,nonFam2PlusPersonsNoAge65Plus
+		,numOfWorkers0
+		,numOfWorkers1
+		,numOfWorkers2
+		,numOfWorkers3Plus			
+		,incomeUnder30k
+		,income30kto60k
+		,income60kto100k
+		,income100kto150k
+		,income150kPlus
+		,incomeUnder10k
+		,income10kto20k
+		,income20kto30k
+		,income30kto40k
+		,income40kto50k
+		,income50kto60k
+		,income60kto75k
+		,income75kto100k
+		,income60kUnder
+		,singleFamily
+		,multiUnit
+		,mobileHome
+		,numOfOwned
+		,numOfRent	
+		,hh1per0wkr
+		,hh1per1wkr
+		,hh2per0wkr
+		,hh2per1wkr
+		,hh2per2wkr
+		,hh3per0wkr
+		,hh3per1wkr
+		,hh3per2wkr
+		,hh3per3wkr
+		,hh4plusper0wkr
+		,hh4plusper1wkr
+		,hh4plusper2wkr
+		,hh4plusper3wkr
+		,hh1perHhinc0to30k
+		,hh1perHhinc30kto60k
+		,hh1perHhinc60kto100k
+		,hh1perHhinc100kplus
+		,hh2perHhinc0to30k
+		,hh2perHhinc30kto60k
+		,hh2perHhinc60kto100k
+		,hh2perHhinc100kplus
+		,hh3perHhinc0to30k
+		,hh3perHhinc30kto60k
+		,hh3perHhinc60kto100k
+		,hh3perHhinc100kplus
+		,hh4plusperHhinc0to30k
+		,hh4plusperHhinc30kto60k
+		,hh4plusperHhinc60kto100k
+		,hh4plusperHhinc100kplus
+		,hh0wkrHhinc0kto30k
+		,hh0wkrHhinc30kto60k
+		,hh0wkrHhinc60kto100k
+		,hh0wkrHhinc100kPlus
+		,hh1wkrHhinc0kto30k
+		,hh1wkrHhinc30kto60k
+		,hh1wkrHhinc60kto100k
+		,hh1wkrHhinc100kPlus
+		,hh2wkrHhinc0kto30k
+		,hh2wkrHhinc30kto60k
+		,hh2wkrHhinc60kto100k
+		,hh2wkrHhinc100kPlus
+		,hh3wkrHhinc0kto30k
+		,hh3wkrHhinc30kto60k
+		,hh3wkrHhinc60kto100k
+		,hh3wkrHhinc100kPlus					
+		,numPersonsHh
+		,numPersonsFamilyHh
+		,numPersonsNonFamilyHh
+		,numPersonsIncomeBelowPoverty
+		,numOfPersonsAsHolders
+		,numOfPersonsAsSpouse
+		,numOfPersonsAsChild
+		,numOfPersonsAsOthers
+		,numOfPersonsNotRelatedToHolder
+		,numOfPersonsGQIncluded
+		,male
+		,female
+		,age0to5
+		,age3Plus
+		,age6to11
+		,age12to15
+		,age16Plus
+		,age16to17
+		,age18to24
+		,age25to34
+		,age35to49
+		,age50to64
+		,age65to79
+		,age80Plus
+		,age17AndUnder
+		,age18to64
+		,age65Plus
+		,marriedSpousePres
+		,hispanic
+		,whiteAlone
+		,blackAlone
+		,indiAlaskaAlone
+		,asianAlone
+		,islanderAlone
+		,otherRaceAloneOrTwoPlusRaces
+		,worked27plusWks
+		,worked27plusWks35PlusHrsPerWk
+		,worked27plusWks15to34HrsPerWk
+		,worked27plusWks1to14HrsPerWk
+		,civilianEmployed
+		,militaryEmployed
+		,unemployed
+		,notInLaborForce
+		,occpMng
+		,occpService
+		,occpSales
+		,occpConstruct
+		,occpTransport		
+		,enrolledNurseyToGrade12
+		,enrollPostSecondary	  
+	  from
+		census_validation
+	]]>
+
+	</sql>
+	
+	<sql id="select-stmt-from-observed-acs">
+	<![CDATA[
+	  select
+	  	puma
+		,hhs
+		,famHhs
+		,nonFamHhs
+		,nonFamHhsbyHolderAge15to64
+		,nonFamHhsbyHolderAge65Plus
+		,hh1Person
+		,hh2Persons
+		,hh3Persons
+		,hh4PlusPersons
+		,famHhsOwnChildUnder18
+		,famHhsNoOwnChildUnder18
+		,famHhsAge18UnderPres
+		,famHhsNoAge18UnderPres
+		,nonFamHhsAge18UnderPres
+		,nonFamHhsNoAge18UnderPres
+		,hhs1PlusAge65Plus
+		,hhsNoAge65Plus
+		,hhs1PersonAge65Plus
+		,fam2PlusPersons1PlusAge65Plus
+		,nonFam2PlusPersons1PlusAge65Plus
+		,hhs1PersonAge65Under
+		,fam2PlusPersonsNoAge65Plus
+		,nonFam2PlusPersonsNoAge65Plus
+		,numOfWorkers0
+		,numOfWorkers1
+		,numOfWorkers2
+		,numOfWorkers3Plus			
+		,incomeUnder30k
+		,income30kto60k
+		,income60kto100k
+		,income100kto150k
+		,income150kPlus
+		,incomeUnder10k
+		,income10kto20k
+		,income20kto30k
+		,income30kto40k
+		,income40kto50k
+		,income50kto60k
+		,income60kto75k
+		,income75kto100k
+		,income60kUnder
+		,singleFamily
+		,multiUnit
+		,mobileHome
+		,numOfOwned
+		,numOfRent	
+		
+		,hh1per0wkr
+		,hh1per1wkr
+		,hh2per0wkr
+		,hh2per1wkr
+		,hh2per2wkr
+		,hh3per0wkr
+		,hh3per1wkr
+		,hh3per2wkr
+		,hh3per3wkr
+		,hh4plusper0wkr
+		,hh4plusper1wkr
+		,hh4plusper2wkr
+		,hh4plusper3wkr
+					
+		,numPersonsHh
+		,numPersonsFamilyHh
+		,numPersonsNonFamilyHh
+		,numPersonsIncomeBelowPoverty
+		,numOfPersonsAsHolders
+		,numOfPersonsAsSpouse
+		,numOfPersonsAsChild
+		,numOfPersonsAsOthers
+		,numOfPersonsNotRelatedToHolder
+		,numOfPersonsGQIncluded
+		,male
+		,female
+		,age3Plus
+		,age16Plus
+		,age18to24
+		,age25to34
+		,age35to49
+		,age50to64
+		,age65to79
+		,age80Plus
+		,age17AndUnder
+		,age18to64
+		,age65Plus
+		,hispanic
+		,whiteAlone
+		,blackAlone
+		,indiAlaskaAlone
+		,asianAlone
+		,islanderAlone
+		,otherRaceAloneOrTwoPlusRaces
+		,worked27plusWks
+		,worked27plusWks35PlusHrsPerWk
+		,worked27plusWks15to34HrsPerWk
+		,worked27plusWks1to14HrsPerWk
+		,civilianEmployed
+		,militaryEmployed
+		,unemployed
+		,notInLaborForce
+		,occpMng
+		,occpService
+		,occpSales
+		,occpConstruct
+		,occpTransport			
+		,enrolledNurseyToGrade12
+		,enrollPostSecondary	  
+	  from
+		acs_validation
+	]]>
+
+	</sql>
+	
+	<sql id="where-stmt-from-PopSyn">
+	<![CDATA[
+		where
+		hw.run_version = #versionId#
+		and hh.source_id = #sourceId#
+		GROUP BY puma
+		order by puma	
+	]]>
+	</sql>
+	
+	<sql id="where-stmt-by-puma-from-PopSyn">
+	<![CDATA[
+		where puma = #puma#
+		and hw.run_version = #versionId#
+		and hh.source_id = #sourceId#
+		GROUP BY puma
+	]]>
+	</sql>
+	
+	<select id="getFromPopSynCensusAll" resultMap="censusValResult">
+		<include refid="select-stmt-from-PopSyn-census" />
+		<include refid="where-stmt-from-PopSyn" />
+	</select>
+	<select id="getFromPopSynCensusByPuma" resultMap="censusValResult">
+		<include refid="select-stmt-from-PopSyn-census" />
+		<include refid="where-stmt-by-puma-from-PopSyn" />
+	</select>
+	<select id="getFromPopSynAcsAll" resultMap="acsValResult">
+		<include refid="select-stmt-from-PopSyn-acs" />
+		<include refid="where-stmt-from-PopSyn" />
+	</select>
+	<select id="getFromPopSynAcsByPuma" resultMap="acsValResult">
+		<include refid="select-stmt-from-PopSyn-acs" />
+		<include refid="where-stmt-by-puma-from-PopSyn" />
+	</select>
+	<select id="getFromObservedCensusAll" resultMap="censusValResult">
+		<include refid="select-stmt-from-observed-census" />
+	</select>
+	<select id="getFromObservedAcsAll" resultMap="acsValResult">
+		<include refid="select-stmt-from-observed-acs" />
+	</select>
+	<select id="getFromObservedCensusByPuma" resultMap="censusValResult">
+		<include refid="select-stmt-from-observed-census" />
+		where puma=#puma#
+	</select>
+	<select id="getFromObservedAcsByPuma" resultMap="acsValResult">
+		<include refid="select-stmt-from-observed-acs" />
+		where puma=#puma#
+	</select>
+
+</sqlMap>

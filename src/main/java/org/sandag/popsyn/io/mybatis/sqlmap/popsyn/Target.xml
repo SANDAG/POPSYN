@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="org.sandag.popsyn.io.mybatis.sqlmap.Target">
+
+	<resultMap type="org.sandag.popsyn.domain.Target" id="TargetResult">
+		<result property="category" column="category" typeHandler="org.sandag.popsyn.typehandler.ControlCategoryTypeHandler" />
+		<result property="geoType" column="geo_type_id" typeHandler="org.sandag.popsyn.typehandler.GeographyTypeHandler" />
+		<result property="geoZone" column="geo_zone" />
+		<result property="year" column="year" />
+		<result property="luMajorVersion" column="lu_major_version" />
+		<result property="luMinorVersion" column="lu_minor_version" />
+		<result property="value" column="value" />
+	</resultMap>
+
+	<sql id="select-from-stmt">
+	<![CDATA[
+		SELECT 
+			 c.id as category,g.id as geo_type_id,t.geo_zone as geo_zone, t.year as year, t.lu_major_version as lu_major_version, t.lu_minor_version as lu_minor_version, t.value as value
+  		FROM         [popsyn].[dbo].[target_category] c INNER JOIN
+                      target t ON c.id = t.category INNER JOIN
+                      data_cafe.dbo.geography_type g ON t.geo_type_id = g.id 
+           	
+	]]>
+	</sql>
+
+    <select id="getTargetByZone" parameterType="org.sandag.popsyn.domain.Target" resultMap="TargetResult" >
+		<include refid="select-from-stmt" />
+		WHERE category=#{category, jdbcType=NUMERIC,typeHandler=org.sandag.popsyn.typehandler.ControlCategoryTypeHandler}
+        and year=#{year} and
+		geo_type_id=#{geoType, jdbcType=NUMERIC, typeHandler=org.sandag.popsyn.typehandler.GeographyTypeHandler} and lu_major_version=#{luMajorVersion} and
+		lu_minor_version=#{luMinorVersion} and geo_zone = #{geoZone}
+	</select>
+	
+	<select id="getTargetByZone2" parameterType="org.sandag.popsyn.domain.Target" resultType="double">
+        SELECT 
+          value
+        FROM
+          [popsyn].[dbo].[target]
+        WHERE 
+          category=#{category, jdbcType=NUMERIC,typeHandler=org.sandag.popsyn.typehandler.ControlCategoryTypeHandler}
+          and year=#{year}
+          and geo_type_id=#{geoType, jdbcType=NUMERIC, typeHandler=org.sandag.popsyn.typehandler.GeographyTypeHandler}
+          and lu_major_version=#{luMajorVersion}
+          and lu_minor_version=#{luMinorVersion}
+          and geo_zone = #{geoZone}
+    </select>
+    
+    <select id="getTargetSummation" parameterType="org.sandag.popsyn.domain.Target" resultType="double">
+        SELECT 
+          sum(value) as value
+        FROM
+          [popsyn].[dbo].[target]
+        WHERE 
+          category=#{category, jdbcType=NUMERIC,typeHandler=org.sandag.popsyn.typehandler.ControlCategoryTypeHandler}
+          and year=#{year}
+          and geo_type_id=#{geoType, jdbcType=NUMERIC, typeHandler=org.sandag.popsyn.typehandler.GeographyTypeHandler}
+          and lu_major_version=#{luMajorVersion}
+          and lu_minor_version=#{luMinorVersion}
+          and geo_zone in
+          <foreach item="item" index="index" collection="geoZones" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+    </select>
+    
+    <select id="regenerateTargets" parameterType="int">
+
+		EXECUTE proc_regenerate_acs_targets #{tyear}
+
+    </select>
+    
+</mapper>

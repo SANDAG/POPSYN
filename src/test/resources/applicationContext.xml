@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!--     CONTROL BEANS    -->
+	<import resource="classpath:control-target-config.xml" />
+	<!--     DATA SOURCE BEANS    -->
+	<import resource="classpath:dataSource-config.xml" />
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations" value="classpath:popsyn.properties" />
+	</bean>
+	
+	<bean id="PopulationSynthesizer" class="org.sandag.popsyn.PopulationSynthesizer">
+		<property name="controlDefinitions">
+			<list>
+
+				<ref bean="nindianControlDefinition" />
+				<ref bean="mixedControlDefinition" />
+				<ref bean="raceotherControlDefinition" />
+				<ref bean="islanderControlDefinition" />
+				<ref bean="blackControlDefinition" />
+				<ref bean="asianControlDefinition" />
+				<ref bean="hispanicControlDefinition" />
+				<ref bean="whiteControlDefinition" />
+
+				<ref bean="age80plusControlDefinition" />
+				<ref bean="age65To79ControlDefinition" />
+				<ref bean="age50To64ControlDefinition" />
+				<ref bean="age0To17ControlDefinition" />
+				<ref bean="age18To24ControlDefinition" />
+				<ref bean="age25To34ControlDefinition" />
+				<ref bean="age35To49ControlDefinition" />
+				
+				<ref bean="maleControlDefinition" />
+				<ref bean="femaleControlDefinition" />
+
+	<!--		<ref bean="InstGQControlDefinition" />  -->
+				<ref bean="ColGQControlDefinition" />
+				<ref bean="MilGQControlDefinition" />
+	<!--		<ref bean="OthGQControlDefinition" />  -->
+
+				<ref bean="ZeroChildHouseholdControlDefinition" />
+				<ref bean="OnePlusChildrenHouseholdControlDefinition" />
+	<!--
+				<ref bean="numOfWorkers2ControlDefinition" />
+				<ref bean="numOfWorkers1ControlDefinition" />
+				<ref bean="numOfWorkers0ControlDefinition" />
+				<ref bean="numOfWorkers3ControlDefinition" />
+																-->
+				<ref bean="mhHouseholdTypeControlDefinition" />
+				<ref bean="mfHouseholdTypeControlDefinition" />
+				<ref bean="sfHouseholdTypeControlDefinition" />
+
+				<ref bean="householdIncome3ControlDefinition" />
+				<ref bean="householdIncome4ControlDefinition" />
+				<ref bean="householdIncome2ControlDefinition" />
+				<ref bean="householdIncome1ControlDefinition" />
+				<ref bean="householdIncome5ControlDefinition" />
+				
+				<ref bean="hhSize3ControlDefinition" />
+				<ref bean="hhSize2ControlDefinition" />
+				<ref bean="hhSize4ControlDefinition" />
+				<ref bean="hhSize1ControlDefinition" />
+				
+				<ref bean="totalHHControlDefinition" /> 
+				<ref bean="totalGQControlDefinition" />
+	
+			</list>
+		</property>
+		<property name="version" ref="Version"></property>
+		<property name="versionMgrDao" ref="VersionManagerDao"></property>
+		<property name="classifier" ref="Classifier"></property>
+		<property name="balancer" ref="Balancer"></property>
+		<property name="validatorDao" ref="ValidatorDao"></property>
+	</bean>
+	
+	<!--  Version Beans  -->
+	<bean id="Version" class="org.sandag.popsyn.Version">
+		<property name="maxLoop" value="${version.maxLoop}" />
+		<property name="convergenceCriteria" value="${version.convergence.criteria}" />
+		<property name="smallValue" value="${version.small.value}" />
+		<property name="targetMajorVersion" value="${version.target.lu.major.revision.no}" />
+		<property name="targetMinorVersion" value="${version.target.lu.minor.revision.no}" />
+		<property name="description" value="${version.description}" />
+		<property name="targetYear" value="${version.target.year}" />
+		<property name="sourceId" value="${version.source.id}" />
+		<property name="balanceGeography">
+			<value type="org.sandag.popsyn.enums.GeographyType">${version.balance.geography.type}
+			</value>
+		</property>
+		<property name="targetGeography">
+			<value type="org.sandag.popsyn.enums.GeographyType">${version.target.geography.type}
+			</value>
+		</property>
+		<property name="allocationGeography">
+			<value type="org.sandag.popsyn.enums.GeographyType">${version.allocation.geography.type}
+			</value>
+		</property>
+		<property name="pumaStart" value="${version.pumaStartingZone}" />
+		<property name="numPumas" value="${version.numberOfPumas}" />
+		<property name="numExtTaz" value="${version.numberOfExternalTazs}" />
+		<property name="workDir" value="${version.workDir}" />
+		<property name="bulkLoadTempDir" value="${version.bulkLoadTempDir}" />
+		<property name="valCount" value="${version.valCount}" />
+		<property name="hhAlAtt" value="${version.hhAlAtt}" />
+		<property name="gqAlAtt" value="${version.gqAlAtt}" />
+		<property name="balanceSelectionFactor" value="${version.balanceSelectionFactor}" />
+		<property name="useInitWeight" value="${version.useInitWeight}" />
+		<property name="balanceAllPumaSamples" value="${version.balanceAllPumaSamples}" />
+		<property name="fixRandomSeed" value="${version.fixRandomSeed}" />
+		<property name="randomSeed" value="${version.randomSeed}" />
+		<property name="acsYear" value="${version.acsYear}" />
+		<property name="targetMethod" value="${version.targetMethod}" />
+		<property name="regenerateTargets" value="${version.regenerateTargets}" />
+		<property name="selectZones" value="${version.selectZones}" />
+	</bean>
+	
+	<!-- Data Access Object Beans -->
+	<bean id="GeographyDao" class="org.sandag.popsyn.io.ibatis.GeographyDao">
+		<property name="sqlMapClient" ref="dataCafeSqlMapClient" />
+	</bean>
+	<bean id="ValidatorDao" class="org.sandag.popsyn.io.ibatis.ValidatorDao">
+		<property name="sqlMapClient" ref="popSynSqlMapClient" />
+	</bean>
+	<bean id="ReaderDao" class="org.sandag.popsyn.io.ibatis.ReaderDao">
+		<property name="sqlMapClient" ref="popSynSqlMapClient" />
+	</bean>
+	<bean id="WriterDao" class="org.sandag.popsyn.io.ibatis.WriterDao">
+		<property name="sqlMapClient" ref="popSynSqlMapClient" />
+	</bean>
+	<bean id="TargetDao" class="org.sandag.popsyn.io.ibatis.TargetDao">
+		<property name="sqlMapClient" ref="popSynSqlMapClient" />
+	</bean>
+	<bean id="TargetGrowthFactorDao" class="org.sandag.popsyn.io.ibatis.TargetGrowthFactorDao">
+		<property name="sqlMapClient" ref="popSynSqlMapClient" />
+	</bean>
+	<bean id="VersionManagerDao" class="org.sandag.popsyn.io.ibatis.VersionManagerDao">
+		<property name="sqlMapClient" ref="popSynSqlMapClient" />
+	</bean>
+
+	<!--  Balancer Beans  -->
+	<bean id="Balancer" class="org.sandag.popsyn.balancer.Balancer">
+		<constructor-arg ref="Version" />
+		<constructor-arg ref="TargetDao" />
+		<constructor-arg ref="TargetGrowthFactorDao" />
+		<constructor-arg ref="WriterDao" />
+		<constructor-arg ref="GeographyDao" />
+	</bean>
+	
+	<!--  Classifier Beans  -->
+	<bean id="Classifier" class="org.sandag.popsyn.controls.Classifier">
+		<constructor-arg ref="ReaderDao" />
+		<constructor-arg ref="GeographyDao" />
+		<constructor-arg ref="Version" />
+	</bean>
+	
+</beans>

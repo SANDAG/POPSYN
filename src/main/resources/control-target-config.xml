@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="hhSize1ControlDefinition"
+		class="org.sandag.popsyn.controls.DiscreteIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="1 person household" />
+		<property name="fieldName" value="hhSize" />
+		<property name="defValue" value="1" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">HHSIZE_1</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="4" />
+	</bean>
+	<bean id="hhSize2ControlDefinition"
+		class="org.sandag.popsyn.controls.DiscreteIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="2 persons household" />
+		<property name="fieldName" value="hhSize" />
+		<property name="defValue" value="2" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">HHSIZE_2</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="2" />
+	</bean>
+	<bean id="hhSize3ControlDefinition"
+		class="org.sandag.popsyn.controls.DiscreteIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="3 persons household" />
+		<property name="fieldName" value="hhSize" />
+		<property name="defValue" value="3" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">HHSIZE_3</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="1" />
+	</bean>
+	<bean id="hhSize4ControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="4+ persons household" />
+		<property name="fieldName" value="hhSize" />
+		<property name="minValue" value="4" />
+		<property name="maxValue" value="99" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">HHSIZE_4PLUS</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="3" />
+	</bean>
+
+	<bean id="householdIncome1ControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="less than 30K" />
+		<property name="fieldName" value="adjIncome" />
+		<property name="minValue" value="0" />
+		<property name="maxValue" value="29999" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">INCOME_30K</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="8" />
+	</bean>
+	<bean id="householdIncome2ControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="30 to 60K" />
+		<property name="fieldName" value="adjIncome" />
+		<property name="minValue" value="30000" />
+		<property name="maxValue" value="59999" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">INCOME_60K</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="6" />
+	</bean>
+	<bean id="householdIncome3ControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="60 to 100K" />
+		<property name="fieldName" value="adjIncome" />
+		<property name="minValue" value="60000" />
+		<property name="maxValue" value="99999" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">INCOME_100K</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="5" />
+	</bean>
+	<bean id="householdIncome4ControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="100 to 150K" />
+		<property name="fieldName" value="adjIncome" />
+		<property name="minValue" value="100000" />
+		<property name="maxValue" value="149999" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">INCOME_150K</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="7" />
+	</bean>
+	<bean id="householdIncome5ControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="150K plus" />
+		<property name="fieldName" value="adjIncome" />
+		<property name="minValue" value="150000" />
+		<property name="maxValue" value="999999999" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">INCOME_150KPLUS</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="9" />
+	</bean>
+	
+	<bean id="numOfWorkers0ControlDefinition"
+		class="org.sandag.popsyn.controls.DiscreteIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="0 worker household" />
+		<property name="fieldName" value="numOfWorkers" />
+		<property name="defValue" value="0" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">WORKERS_0</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="13" />
+	</bean>
+	<bean id="numOfWorkers1ControlDefinition"
+		class="org.sandag.popsyn.controls.DiscreteIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="1 worker household" />
+		<property name="fieldName" value="numOfWorkers" />
+		<property name="defValue" value="1" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">WORKERS_1</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="11" />
+	</bean>
+	<bean id="numOfWorkers2ControlDefinition"
+		class="org.sandag.popsyn.controls.DiscreteIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="2 workers household" />
+		<property name="fieldName" value="numOfWorkers" />
+		<property name="defValue" value="2" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">WORKERS_2</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="10" />
+	</bean>
+	<bean id="numOfWorkers3ControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="3+ workers household" />
+		<property name="fieldName" value="numOfWorkers" />
+		<property name="minValue" value="3" />
+		<property name="maxValue" value="99" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">WORKERS_3PLUS</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="12" />
+	</bean>	
+	
+	<bean id="sfHouseholdTypeControlDefinition" class="org.sandag.popsyn.controls.EnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="single family house" />
+		<property name="fieldName" value="dwellingType" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.DwellingType">SINGLE_FAMILY</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">SINGLE_FAMILY</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="14" />
+	</bean>
+	<bean id="mfHouseholdTypeControlDefinition" class="org.sandag.popsyn.controls.EnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="multi family house" />
+		<property name="fieldName" value="dwellingType" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.DwellingType">MULTI_UNIT</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">MULTI_UNIT</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="15" />
+	</bean>
+	<bean id="mhHouseholdTypeControlDefinition" class="org.sandag.popsyn.controls.EnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="mobile home" />
+		<property name="fieldName" value="dwellingType" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.DwellingType">MOBILE_HOME</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">MOBILE_HOME</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="16" />
+	</bean>	
+	
+	<bean id="age0To17ControlDefinition"
+		class="org.sandag.popsyn.controls.GroupRangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="age 0 to 17" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="age" />
+		<property name="minValue" value="0" />
+		<property name="maxValue" value="17" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">AGE0TO17</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="21" />
+	</bean>
+	<bean id="age18To24ControlDefinition"
+		class="org.sandag.popsyn.controls.GroupRangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="age 18 to 24" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="age" />
+		<property name="minValue" value="18" />
+		<property name="maxValue" value="24" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">AGE18TO24</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="20" />
+	</bean>
+	<bean id="age25To34ControlDefinition"
+		class="org.sandag.popsyn.controls.GroupRangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="age 25 to 34" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="age" />
+		<property name="minValue" value="25" />
+		<property name="maxValue" value="34" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">AGE25TO34</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="18" />
+	</bean>
+	<bean id="age35To49ControlDefinition"
+		class="org.sandag.popsyn.controls.GroupRangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="age 35 to 49" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="age" />
+		<property name="minValue" value="35" />
+		<property name="maxValue" value="49" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">AGE35TO49</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="17" />
+	</bean>
+	<bean id="age50To64ControlDefinition"
+		class="org.sandag.popsyn.controls.GroupRangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="age 50 to 64" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="age" />
+		<property name="minValue" value="50" />
+		<property name="maxValue" value="64" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">AGE50TO64</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="19" />
+	</bean>
+	<bean id="age65To79ControlDefinition"
+		class="org.sandag.popsyn.controls.GroupRangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="age 65 to 79" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="age" />
+		<property name="minValue" value="65" />
+		<property name="maxValue" value="79" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">AGE65TO79</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="22" />
+	</bean>
+	<bean id="age80plusControlDefinition"
+		class="org.sandag.popsyn.controls.GroupRangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="age > 80" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="age" />
+		<property name="minValue" value="80" />
+		<property name="maxValue" value="999" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">AGE80PLUS</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="23" />
+	</bean>	
+
+	<bean id="ZeroChildHouseholdControlDefinition"
+		class="org.sandag.popsyn.controls.DiscreteIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="0 child in household" />
+		<property name="fieldName" value="numOfChildren" />
+		<property name="defValue" value="0" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">CHILDREN_0</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="25" />
+	</bean>
+	<bean id="OnePlusChildrenHouseholdControlDefinition"
+		class="org.sandag.popsyn.controls.RangeIntegerControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="1+ children in household" />
+		<property name="fieldName" value="numOfChildren" />
+		<property name="minValue" value="1" />
+		<property name="maxValue" value="99" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">CHILDREN_1PLUS</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="24" />
+	</bean>
+
+	<bean id="hispanicControlDefinition"
+		class="org.sandag.popsyn.controls.GroupBooleanControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="hispanic" />
+		<property name="check" value="true" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="hispanic" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">HISPANIC</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="27" />
+	</bean>
+	<bean id="whiteControlDefinition" class="org.sandag.popsyn.controls.GroupEnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="white" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="race" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.RaceType">WHITE_ALONE</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">WHITE</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="26" />
+	</bean>
+	<bean id="blackControlDefinition" class="org.sandag.popsyn.controls.GroupEnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="black" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="race" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.RaceType">BLACK_ALONE</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">BLACK</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="29" />
+	</bean>
+	<bean id="nindianControlDefinition" class="org.sandag.popsyn.controls.GroupEnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="native indian" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="race" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.RaceType">AMERICAN_INDI_ALONE</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">NINDIAN</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="32" />
+	</bean>
+	<bean id="asianControlDefinition" class="org.sandag.popsyn.controls.GroupEnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="asian" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="race" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.RaceType">ASIAN_ALONE</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">ASIAN</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="28" />
+	</bean>
+	<bean id="islanderControlDefinition" class="org.sandag.popsyn.controls.GroupEnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="hawaian and pacific islander" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="race" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.RaceType">NATIVE_PACIFIC_ISLANDER
+			</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">ISLANDER</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="33" />
+	</bean>
+	<bean id="raceotherControlDefinition" class="org.sandag.popsyn.controls.GroupEnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="other race" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="race" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.RaceType">OTHER_RACE_ALONE</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">RACEOTHER</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="31" />
+	</bean>
+	<bean id="mixedControlDefinition" class="org.sandag.popsyn.controls.GroupEnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="mixed race" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="race" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.RaceType">TWO_OR_MORE_RACE</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">MIXED</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="30" />
+	</bean>
+
+	<bean id="maleControlDefinition"
+		class="org.sandag.popsyn.controls.GroupBooleanControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="male" />
+		<property name="check" value="true" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="male" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">MALE</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="35" />
+	</bean>
+	<bean id="femaleControlDefinition"
+		class="org.sandag.popsyn.controls.GroupBooleanControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="female" />
+		<property name="check" value="false" />
+		<property name="fieldName" value="people" />
+		<property name="subField" value="male" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">FEMALE</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="34" />
+	</bean>
+
+	<bean id="InstGQControlDefinition" class="org.sandag.popsyn.controls.EnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="Institutionalized GQ" />
+		<property name="fieldName" value="unitType" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.UnitType">INST_GROUP_QUARTERS</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">GQ_INST</value>
+		</property>
+		<property name="GQControl" value="true" />
+		<property name="rank" value="39" />
+	</bean>
+	<bean id="ColGQControlDefinition" class="org.sandag.popsyn.controls.EnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="Non-Institutionalized College GQ" />
+		<property name="fieldName" value="unitType" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.UnitType">NON_INST_COLL</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">GQ_COLL</value>
+		</property>
+		<property name="GQControl" value="true" />
+		<property name="rank" value="36" />
+	</bean>
+	<bean id="MilGQControlDefinition" class="org.sandag.popsyn.controls.EnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="Non-Institutionalized Military GQ" />
+		<property name="fieldName" value="unitType" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.UnitType">NON_INST_MIL</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">GQ_MIL</value>
+		</property>
+		<property name="GQControl" value="true" />
+		<property name="rank" value="37" />
+	</bean>
+	<bean id="OthGQControlDefinition" class="org.sandag.popsyn.controls.EnumControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="Non-Institutionalized Other GQ" />
+		<property name="fieldName" value="unitType" />
+		<property name="defValue">
+			<value type="org.sandag.popsyn.enums.UnitType">NON_INST_OTHER</value>
+		</property>
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">GQ_OTHER</value>
+		</property>
+		<property name="GQControl" value="true" />
+		<property name="rank" value="38" />
+	</bean>
+
+	<bean id="totalHHControlDefinition" class="org.sandag.popsyn.controls.BooleanControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="household" />
+		<property name="check" value="false" />
+		<property name="fieldName" value="groupQuarter" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">TOTAL_HOUSEHOLDS</value>
+		</property>
+		<property name="GQControl" value="false" />
+		<property name="rank" value="100" />
+	</bean>
+	<bean id="totalGQControlDefinition" class="org.sandag.popsyn.controls.BooleanControlDefinition">
+		<constructor-arg value="org.sandag.popsyn.domain.Household" />
+		<property name="description" value="household" />
+		<property name="check" value="true" />
+		<property name="fieldName" value="groupQuarter" />
+		<property name="category">
+			<value type="org.sandag.popsyn.enums.ControlCategoryType">TOTAL_GQ</value>
+		</property>
+		<property name="GQControl" value="true" />
+		<property name="rank" value="101" />
+	</bean>
+</beans>
+
