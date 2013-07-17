@@ -1,8 +1,4 @@
-USE [data_cafe]
-GO
-
-
-  ALTER FUNCTION [dbo].[getxref](@SuperZone integer, @SubZone integer)
+CREATE FUNCTION [getxref](@SuperZone integer, @SubZone integer)
  RETURNS @ret_table Table
   (
 	pZone int,
