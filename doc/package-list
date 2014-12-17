@@ -1,9 +1,0 @@
-org.sandag.popsyn
-org.sandag.popsyn.balancer
-org.sandag.popsyn.controls
-org.sandag.popsyn.domain
-org.sandag.popsyn.enums
-org.sandag.popsyn.io
-org.sandag.popsyn.io.ibatis
-org.sandag.popsyn.typehandler
-org.sandag.popsyn.validator
