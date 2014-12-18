@@ -199,24 +199,7 @@
                                 </resource>
                             </resources>
                         </configuration>
-                    </execution>   
-                    <execution>
-                        <id>copy-input-resources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <encoding>${encoding.type}</encoding>
-                            <outputDirectory>${output.path}/input</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>input</directory>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>  
+                    </execution>     
                     <execution>
                         <id>copy-lib-resources</id>
                         <phase>package</phase>
