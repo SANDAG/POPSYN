@@ -348,6 +348,13 @@
             <artifactId>ortools</artifactId>
             <version>3795</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.google</groupId>
+            <artifactId>ortools</artifactId>
+            <version>3795</version>
+            <type>dll</type>
+        </dependency>
 
         <dependency>
             <groupId>org.jppf</groupId>
