@@ -81,8 +81,10 @@ public class Integerizer
                 	logger.info( "user.dir" + " = " + value );
             }
                         	
-    		logger.info( "loading jnilinearsolver.dll ");
-    		System.loadLibrary("jnilinearsolver");
+    		//logger.info( "loading jnilinearsolver.dll ");
+    		logger.info( "loading ortools-3795.dll ");
+    		//System.loadLibrary("jnilinearsolver");
+    		System.loadLibrary("ortools-3795.dll");
     	}
     	catch ( Exception e ) {
     		System.out.println ( "Exception caught loading jnilinearsolver.dll" );
