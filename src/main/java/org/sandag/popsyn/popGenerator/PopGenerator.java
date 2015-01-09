@@ -80,8 +80,8 @@ public class PopGenerator implements Serializable
     private static JPPFClient jppfClient =  null;
 
     
-    private static final String TEMP_INCIDENCE_TABLE_NAME = "incidence";
-    private static final String TEMP_HHIDS_TABLE_NAME = "hhIds";
+    private static final String TEMP_INCIDENCE_TABLE_NAME = "dbo.incidence";
+    private static final String TEMP_HHIDS_TABLE_NAME = "dbo.hhIds";
     private static final String SIMPLE_TYPE = "simple";
     private static final String COUNT_TYPE = "count";
     
@@ -91,7 +91,7 @@ public class PopGenerator implements Serializable
     private static final int REPORT_TAZ_INDEX = 0;
     private static final int REPORT_MAZ_INDEX = 0;
 
-    private static final boolean USE_JPPF = true;    
+    private static final boolean USE_JPPF = false;    
     private static final int NUM_THREADS =  10;
     
     private int tazPromotionFactor = -1;
