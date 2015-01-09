@@ -175,6 +175,7 @@
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>*.bat</include>
+                                        <include>*.cmd</include>
                                     </includes>
                                 </resource>
                             </resources>

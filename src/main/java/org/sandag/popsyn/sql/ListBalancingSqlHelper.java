@@ -38,7 +38,7 @@ public class ListBalancingSqlHelper implements Serializable
 	
     private transient Logger logger = Logger.getLogger(ListBalancingSqlHelper.class);
     
-    private static final String SYNPOP_TEMP_TABLE_NAME = "temp";
+    private static final String SYNPOP_TEMP_TABLE_NAME = "dbo.temp";
 
     private String HOUSEHOLD_IDS_TABLE_NAME;
     private String INPUT_PUMS_HHTABLE_META_NAME;

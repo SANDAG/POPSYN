@@ -91,7 +91,7 @@ public class PopGenerator implements Serializable
     private static final int REPORT_TAZ_INDEX = 0;
     private static final int REPORT_MAZ_INDEX = 0;
 
-    private static final boolean USE_JPPF = false;    
+    private static final boolean USE_JPPF = true;    
     private static final int NUM_THREADS =  10;
     
     private int tazPromotionFactor = -1;
