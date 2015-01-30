@@ -175,6 +175,7 @@
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>*.bat</include>
+                                        <include>*.cmd</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -341,8 +342,22 @@
             <groupId>pb</groupId>
             <artifactId>common-base</artifactId>
             <version>2014.07.09-ABM</version>
-        </dependency>
-        
+        </dependency>	
+		<dependency>
+			<groupId>sandag</groupId>
+			<artifactId>common-utils</artifactId>
+			<version>1.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.ibatis</groupId>
+					<artifactId>ibatis2-common</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.ibatis</groupId>
+					<artifactId>ibatis2-sqlmap</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>		         
         <dependency>
             <groupId>com.google</groupId>
             <artifactId>ortools</artifactId>
@@ -355,7 +370,7 @@
             <version>3795</version>
             <type>dll</type>
         </dependency>
-
+        
         <dependency>
             <groupId>org.jppf</groupId>
             <artifactId>jppf-common</artifactId>

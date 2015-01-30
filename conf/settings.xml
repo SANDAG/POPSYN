@@ -2,11 +2,11 @@
 
 <targets>
   <database>
-    <server>PC5S489Z1:1433</server>
+    <server>sql2014a8</server>
     <type>MS_SQL</type>
     <!--<user></user>-->
     <password></password>
-    <dbName>NVPopSynIII</dbName>
+    <dbName>ws</dbName>
   </database>
 
   <!-- Specify the PUMS data table names from which PUMA incidence tables are generated, as well as the field name for a unique identifier and the PUMS weight field name -->
@@ -17,14 +17,14 @@
     <tazFieldName>TAZ</tazFieldName>
     <mazFieldName>MAZ</mazFieldName>
     <weightField>WGTP</weightField>
-    <hhTable>hhtable</hhTable>
-    <persTable>perstable</persTable>
-    <pumsHhTable>hhtable</pumsHhTable>
+    <hhTable>dbo.hhtable</hhTable>
+    <persTable>dbo.perstable</persTable>
+    <pumsHhTable>dbo.hhtable</pumsHhTable>
     <pumsHhIdField>hhnum</pumsHhIdField>
-    <pumsPersTable>perstable</pumsPersTable>
+    <pumsPersTable>dbo.perstable</pumsPersTable>
     <maxExpansionFactor>15</maxExpansionFactor>
-    <synpopOutputHhTableName>synpop_hh</synpopOutputHhTableName>
-    <synpopOutputPersTableName>synpop_person</synpopOutputPersTableName>
+    <synpopOutputHhTableName>dbo.synpop_hh</synpopOutputHhTableName>
+    <synpopOutputPersTableName>dbo.synpop_person</synpopOutputPersTableName>
     <outputHhAttributes>serialno, np, hincp, ten, bld, nwrkrs_esr, hhincAdj, adjinc, veh, hht, type, npf, hupac, GQFLAG, GQTYPE</outputHhAttributes>
     <outputPersAttributes>sporder, agep, sex, wkhp, esr, schg, employed, wkw, mil, schl, indp02, indp07, occp02, occp10, GQFLAG, GQTYPE</outputPersAttributes>
   </pumsData>
@@ -32,7 +32,7 @@
   <!-- Specify the table name and name of id field for the MAZ control totals table -->
   <mazControlsTable>
     <mazTable id="1">
-      <table_name>control_totals_maz</table_name>
+      <table_name>dbo.control_totals_maz</table_name>
       <id_field_name>MAZ</id_field_name>
       <aggregation_level>MAZ</aggregation_level>
     </mazTable>
@@ -41,7 +41,7 @@
   <!-- Specify the table name and name of id field for the table of TAZ control totals that are not fields in the MAZ control total table -->
   <tazControlsTable>
     <tazTable id="1">
-      <table_name>control_totals_taz</table_name>
+      <table_name>dbo.control_totals_taz</table_name>
       <id_field_name>TAZ</id_field_name>
       <aggregation_level>TAZ</aggregation_level>
     </tazTable>
@@ -50,7 +50,7 @@
   <!-- Specify the table name, id field name, and aggregation level for each table of META control totals -->
   <metaControlsTables>
     <metaTable id="1">
-      <table_name>control_totals_meta</table_name>
+      <table_name>dbo.control_totals_meta</table_name>
       <id_field_name>REGION</id_field_name>
       <aggregation_level>PUMA</aggregation_level>
     </metaTable>
@@ -64,7 +64,7 @@
       <totalHouseholdsControl>true</totalHouseholdsControl>
       <controlType>simple</controlType>
       <geographyType>MAZ</geographyType>
-      <table>hhtable</table>
+      <table>dbo.hhtable</table>
       <constraint id="1">
         <importance>1000000000</importance>
         <field>WGTP</field>
@@ -86,7 +86,7 @@
       <description>MAZ Control: Number of Households by household type</description>
       <geographyType>MAZ</geographyType>
       <controlType>simple</controlType>
-      <table>hhtable</table>
+      <table>dbo.hhtable</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>htype</field>
@@ -119,7 +119,7 @@
       <description>TAZ Level Control: Number of Households by Persons per Households</description>
       <geographyType>TAZ</geographyType>
       <controlType>simple</controlType>
-      <table>hhtable</table>
+      <table>dbo.hhtable</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>NP</field>
@@ -162,7 +162,7 @@
       <description>TAZ Level Control: Number of Households by Household Income</description>
       <geographyType>TAZ</geographyType>
       <controlType>simple</controlType>
-      <table>hhtable</table>
+      <table>dbo.hhtable</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>hhincAdj</field>
@@ -224,7 +224,7 @@
       <description>TAZ Level Control: Number of Households by number of workers</description>
       <geographyType>TAZ</geographyType>
       <controlType>simple</controlType>
-      <table>hhtable</table>
+      <table>dbo.hhtable</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>nwrkrs_esr</field>
@@ -267,7 +267,7 @@
       <description>TAZ Control: Number of persons by age group</description>
       <geographyType>TAZ</geographyType>
       <controlType>COUNT</controlType>
-      <table>perstable</table>
+      <table>dbo.perstable</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>AGEP</field>
@@ -349,7 +349,7 @@
       <description>TAZ Control: Number of Households by presence of children</description>
       <geographyType>TAZ</geographyType>
       <controlType>simple</controlType>
-      <table>hhtable</table>
+      <table>dbo.hhtable</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>hhchild</field>
@@ -374,7 +374,7 @@
       <description>Regional META Control: Total Regional Population</description>
       <geographyType>META</geographyType>
       <controlType>COUNT</controlType>
-      <table>perstable</table>
+      <table>dbo.perstable</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>WGTP</field>
