@@ -296,7 +296,7 @@ public class ListBalancingSqlHelper implements Serializable
                 createQuery += ( ", " + constraint.getField() + " FLOAT" ); 
                 insertQuery += ( constraint.getField() + ") SELECT " + idVariable + ", "
                         + constraint.getField() + " FROM " + ((Marginal)constraint.getParentObject()).getTable()
-                        + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma ); 
+                        + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma +" AND GQFLAG=0"); 
             }
             
             createQuery += ( ", " + constraint.getField() + constraint.getId() + " FLOAT" ); 
@@ -352,7 +352,7 @@ public class ListBalancingSqlHelper implements Serializable
                 createQuery += ( ", " + constraint.getField() + " FLOAT" ); 
                 insertQuery += ( constraint.getField() + ") SELECT " + idVariable + ", "
                     + constraint.getField() + " FROM " + ((Marginal)constraint.getParentObject()).getTable()
-                    + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma ); 
+                    + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma+ " AND GQFLAG=0"); 
             }
             
             createQuery += ( ", " + constraint.getField() + constraint.getId() + " FLOAT" ); 
@@ -379,6 +379,10 @@ public class ListBalancingSqlHelper implements Serializable
         // remove "," from end of string
         int index = updateQuery.lastIndexOf( "," );
         updateQuery = updateQuery.substring(0, index);
+        
+        System.out.println("createQ="+createQuery);
+        System.out.println("insertQ="+insertQuery);
+        System.out.println("updateQ="+updateQuery);
         
         
         // create the incidence table and populate it
@@ -449,6 +453,9 @@ public class ListBalancingSqlHelper implements Serializable
         // define the query to get the weight column.
         String query = "SELECT " + idFieldName + " FROM " + tableName
                 + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma + " ORDER BY " + idFieldName; 
+     
+        System.out.println("Getting hhids from "+INPUT_PUMS_HHTABLE_PUMA_NAME+" for PUMA "+puma+" to be balanced.");
+        System.out.println("---Query="+query);
         
         int[] result;
         ArrayList<Integer> rsList = new ArrayList<Integer>();
@@ -513,7 +520,7 @@ public class ListBalancingSqlHelper implements Serializable
         	}
         }
         query += " FROM " + incidenceTableName; 
-
+        
         
         // execute the query, and save the result set as a 2 dimensional int array.
         HashMap<Integer, int[]> rsMap = new HashMap<Integer, int[]>();
@@ -795,6 +802,7 @@ public class ListBalancingSqlHelper implements Serializable
         	}
         }
         query += " FROM " + incidenceTableName + " GROUP BY " + countByVariable;
+        System.out.println("---query="+query);
 
 
         // execute the query, and save the result set as a 2 dimensional int array.
@@ -808,19 +816,28 @@ public class ListBalancingSqlHelper implements Serializable
             ResultSet rs = ps.executeQuery();
 
             int numColumns = rs.getMetaData().getColumnCount();
+            int maxK=0;
             while ( rs.next() ) {
                 int[] row = new int[numColumns-1];
                 for ( int i=0; i < numColumns-1; i++ )
                     row[i] = rs.getInt( i+1+1 );
                 int id = rs.getInt( 1 );
-                int k = hhIdIndex[id];
-                
+                int k = hhIdIndex[id];             
                 rsMap.put( k, row );
+                if(k>maxK) maxK=k;
             }
-
+            
+            if(rsMap.size()!=(maxK+1)){            
+            	System.out.println("---Number of hhs in person input table="+rsMap.size());
+            	System.out.println("---Number of hhs in hh input table="+(maxK+1));
+            	System.out.println("---Input PUMS data not consistent in person and hh tables, quitting...");
+            	System.exit(-1);            	
+            }
+            
             result = new int[rsMap.size()][];
+            
             for ( int k : rsMap.keySet() ) {
-            	int[] values = rsMap.get(k);            	
+            	int[] values = rsMap.get(k);     
                 result[k] = values;
             }
             

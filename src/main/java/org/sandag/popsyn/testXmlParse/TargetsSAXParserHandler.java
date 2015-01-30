@@ -41,6 +41,8 @@ public class TargetsSAXParserHandler extends DefaultHandler{
     private String currentContext;
     private String parentContext;
     private String tempVal;
+    //Wu added for adjustment to fit SANDAG database 
+    private int tempIntVal;
     
     //private Database db;
     private PumsData pumsData;
@@ -287,6 +289,13 @@ public class TargetsSAXParserHandler extends DefaultHandler{
         else if( qName.equalsIgnoreCase("dbName") && currentContext.equals( Database.TYPE ) ) {
             handleDatabaseDbNameTag( (Database)currentObject );
         }
+        //Wu added for adjustment to fit SANDAG database
+        else if( qName.equalsIgnoreCase("lu_version") && currentContext.equals( Database.TYPE ) ) {
+            handleDatabaseLuVersionTag( (Database)currentObject );
+        }
+        else if( qName.equalsIgnoreCase("year") && currentContext.equals( Database.TYPE ) ) {
+            handleDatabaseYearTag( (Database)currentObject );
+        }
         else if( qName.equalsIgnoreCase("pumafieldname") && currentContext.equals( PumsData.TYPE ) ) {
             handlePumsDataPumaFieldNameTag( (PumsData)currentObject );
         }
@@ -531,6 +540,16 @@ public class TargetsSAXParserHandler extends DefaultHandler{
 
     private void handleDatabaseDbNameTag( Database db ) {
         db.setDbName( tempVal );
+    }
+    
+    //Wu added for adjustment to fit SANDAG database 
+    private void handleDatabaseLuVersionTag( Database db ) {
+        db.setLu_version( tempIntVal );
+    }
+
+    //Wu added for adjustment to fit SANDAG database 
+    private void handleDatabaseYearTag( Database db ) {
+        db.setYear( tempIntVal );
     }
 
     private void handleMarginalTableTag( Marginal m ) {

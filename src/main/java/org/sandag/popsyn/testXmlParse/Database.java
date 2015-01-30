@@ -29,6 +29,25 @@ public class Database
     private String user;
     private String password;
     private String dbName;
+    //Wu added for adjustment to SANDAG database
+    private int lu_version;
+	private int year;
+	
+    public int getLu_version() {
+		return lu_version;
+	}
+
+	public void setLu_version(int lu_version) {
+		this.lu_version = lu_version;
+	}
+
+	public int getYear() {
+		return year;
+	}
+
+	public void setYear(int year) {
+		this.year = year;
+	}
 
     public Database ( Object parent ) {
         parentObject = parent;
