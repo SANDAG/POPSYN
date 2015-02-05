@@ -24,9 +24,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.sandag.popsyn.popGenerator.PopGenerator;
 import org.sandag.popsyn.testXmlParse.Balance;
 import org.sandag.popsyn.testXmlParse.Database;
 import org.sandag.popsyn.testXmlParse.TargetsSAXParser;
+/**
+ * A class to test calling SQL funtions
+ * @author Wu Sun wsu@sandag.org
+ *
+ */
 
 public class ControlTableGenerator {
     private static String jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";    
@@ -84,8 +91,19 @@ public class ControlTableGenerator {
     
     public static void main(String[] args){
     	String setting="T:\\ABM\\ABM_FY15\\PopSynIII\\popsyn3_DEMO\\runtime\\config\\settings.xml";
+    	String pfile="popsyn";
+    	/*
     	ControlTableGenerator ctg=new ControlTableGenerator(setting);
     	ResultSet rs=ctg.generateControlTable("[input].[fn_control_targets_mgra_sr13]",1,2012);
+    	*/
+    	PopGenerator gen=new PopGenerator();
+        try {        	
+            gen.runPopulationGenerator( setting, pfile, "0");        	
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
 
