@@ -46,6 +46,7 @@ import org.jppf.client.JPPFJob;
 import org.jppf.server.protocol.JPPFTask;
 import org.jppf.task.storage.DataProvider;
 import org.jppf.task.storage.MemoryMapDataProvider;
+import org.sandag.common.utilities.PropertyParser;
 import org.sandag.popsyn.procedures.Integerizer;
 import org.sandag.popsyn.procedures.ListBalancer;
 import org.sandag.popsyn.sql.ListBalancingSqlHelper;
@@ -77,15 +78,18 @@ public class PopGenerator implements Serializable
      */
     private static JPPFClient jppfClient =  null;
 
-    
-    private static final String TEMP_INCIDENCE_TABLE_NAME = "dbo.incidence";
-    private static final String TEMP_HHIDS_TABLE_NAME = "dbo.hhIds";
+    //Wu modified to change to SANDAG DB schema
+    private static final String TEMP_INCIDENCE_TABLE_NAME = "popsyn_staging.incidence_";
+    private static final String TEMP_HHIDS_TABLE_NAME = "popsyn_staging.hhids_";
+    //Wu added for writing properties to DB
+    private static final String PROPERTY_TABLE_NAME="ref.popsyn_run";
     private static final String SIMPLE_TYPE = "simple";
     private static final String COUNT_TYPE = "count";
     
-
-    private static final int RUN_THIS_PUMA_ONLY = 0;
-    private static final int RUN_THIS_TAZ_ONLY = 0;
+    //Wu modified to make these non-static non-final variables to be updated from property file
+    private int RUN_THIS_PUMA_ONLY;
+    private int RUN_THIS_TAZ_ONLY;
+    
     private static final int REPORT_TAZ_INDEX = 0;
     private static final int REPORT_MAZ_INDEX = 0;
 
@@ -99,6 +103,7 @@ public class PopGenerator implements Serializable
     //Wu added for getting control data from SQL functions instead of tables
     private String mazControlTotalsTableName;
     private String tazControlTotalsTableName;
+    
     private String [] metaControlTotalsTableNames;   
     private String[] metaAggregationLevels;
     
@@ -127,6 +132,7 @@ public class PopGenerator implements Serializable
 
     private int totalHouseholdsTazBalancingIncidenceIndex;    
     private Database db;
+    private int gqflag;
 
 
     public PopGenerator() {
@@ -147,6 +153,54 @@ public class PopGenerator implements Serializable
 
     }
     
+    private PopSynProperties getProperties(String pfile){
+    	PopSynProperties result=new PopSynProperties();
+    	PropertyParser p=new PropertyParser(pfile);
+    	int year=new Integer(p.getPropertyByName("popsyn3.year")).intValue();
+    	int landUseVersion=new Integer(p.getPropertyByName("popsyn3.landUseVersion")).intValue();
+    	int dataSource=new Integer(p.getPropertyByName("popsyn3.dataSource")).intValue();
+    	int puma=new Integer(p.getPropertyByName("popsyn3.puma")).intValue();
+    	int taz=new Integer(p.getPropertyByName("popsyn3.taz")).intValue();
+    	result.setYear(year);
+    	result.setDataSource(dataSource);
+    	result.setLandUseVersion(landUseVersion);
+    	result.setPuma(puma);
+    	result.setTaz(taz);
+    	return result;
+    }
+    
+    private void writePropertiesToDB(PopSynProperties p, ListBalancingSqlHelper sqlHelper){
+    	
+    	String puma=null;
+    	String taz=null;
+    	int ptemp=p.getPuma();
+    	int ttemp=p.getTaz();
+    	if(ptemp!=0) puma=""+ptemp;
+    	if(ttemp!=0) taz=""+ttemp;
+    	
+    	String query="INSERT INTO "+PROPERTY_TABLE_NAME+"(popsyn_data_source_id, lu_version_id, year, user_name, start_time, end_time, validated, puma, taz) VALUES("
+        +p.getDataSource()+","+p.getLandUseVersion()+","+p.getYear()+",CURRENT_USER, getDate(), null, null, "+puma+", "+taz+")";    
+    	//System.out.println("write property query="+query);
+    	sqlHelper.submitExecuteUpdate(query);
+    }
+    
+    private int getRunVersion(PopSynProperties p, ListBalancingSqlHelper sqlHelper){
+    	String query="SELECT MAX([popsyn_run_id]) FROM "+PROPERTY_TABLE_NAME
+    			+" WHERE [popsyn_data_source_id] ="+p.getDataSource()
+    			+" AND [lu_version_id] ="+p.getLandUseVersion()
+    			+" AND [year] ="+p.getYear()
+				+" AND [user_name] = CURRENT_USER";
+    	//System.out.println(query);
+    	int id=sqlHelper.getIdentity(query);   	
+    	return id;
+    }
+    
+    private void updateEndTime(ListBalancingSqlHelper sqlHelper, int id){    	
+    	String query="UPDATE "+PROPERTY_TABLE_NAME+" set end_time=getDate() WHERE [popsyn_run_id]="+id;    
+    	    	//System.out.println("write property query="+query);
+    	    	sqlHelper.submitExecuteUpdate(query);    	
+    }
+    
     private void setControlTableNames(Balance balanceObject){
         if ( balanceObject.getMazControlsTable() != null )
 			//mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"("+db.getLu_version()+","+db.getYear()+")";   
@@ -165,9 +219,10 @@ public class PopGenerator implements Serializable
 		}
     }
 
-    private void runPopulationGenerator( String xmlFileName ) throws Exception {
-
-		logger.info( "start of runPopulationGenerator: " + "parsing xml file" );
+    public void runPopulationGenerator( String xmlFileName, String propertyFile, String flag ) throws Exception {
+    	
+    	logger.info( "start of runPopulationGenerator: " + "parsing xml file" );
+    	gqflag=new Integer(flag).intValue();    			
 		TargetsSAXParser saxParser = new TargetsSAXParser();
 		saxParser.parseConditions( xmlFileName );
 		
@@ -181,13 +236,23 @@ public class PopGenerator implements Serializable
 		// create a helper object for forming and submitting SQL commands to the database server
 		ListBalancingSqlHelper sqlHelper = new ListBalancingSqlHelper( db.getDbType(), db.getDbName(), db.getDbUser(), db.getDbPassword(), db.getDbHost());
 		
+		//Wu added for reading properties from popsyn.properties file and retrieve run version as id
+		PopSynProperties pr=getProperties(propertyFile);
+    	writePropertiesToDB(pr, sqlHelper);    	   
+    	int id=getRunVersion(pr, sqlHelper);	
+	    String temp_hhid_table=TEMP_HHIDS_TABLE_NAME+id;
+	    String temp_incidence_table=TEMP_INCIDENCE_TABLE_NAME+id;
+	    
+	    //Wu added to get PUMA and TAZ from property file
+	    RUN_THIS_PUMA_ONLY=pr.getPuma();
+	    RUN_THIS_TAZ_ONLY=pr.getTaz();
+    	
 		// create the sql table in which household records will be stored
-		sqlHelper.createHouseholdIdTable( TEMP_HHIDS_TABLE_NAME, balanceObject.getPumsData().getPumaFieldName(), balanceObject.getPumsData().getMetaFieldName(), balanceObject.getPumsData().getWeightFieldName() );
+		sqlHelper.createHouseholdIdTable(temp_hhid_table, balanceObject.getPumsData().getPumaFieldName(), balanceObject.getPumsData().getMetaFieldName(), balanceObject.getPumsData().getWeightFieldName() );
 		
 		//get max expansion factor
 		max_expansion_factor = balanceObject.getPumsData().getMaxExpansionFactor();
-				
-		
+					
 		// read the geographic correspondence information, then get a handle to the geogManager.
 		geogManager = GeographyManager.getInstance();
 		geogManager.createGeogCorrespondence( db.getDbType(), db.getDbName(), db.getDbUser(), db.getDbPassword(), db.getDbHost(), mazControlTotalsTableName,
@@ -205,14 +270,14 @@ public class PopGenerator implements Serializable
         int[] mazPumaValues = geogManager.getMazPumaValues();
         int[] pumaMetaCorresp = geogManager.getPumaMetaCorresp();
         
-		createControlSetArrays( sqlHelper, balanceObject, controlSetArray ); 						
+		createControlSetArrays( sqlHelper, balanceObject, controlSetArray); 						
 		
 		        
 		long start = System.nanoTime();
 		logger.info( "balancing household weights over initial PUMA controls ..." );
 		
 		
-		getIncidenceData( pumaValues, balanceObject, sqlHelper, controlSetArray );		
+		getIncidenceData( pumaValues, balanceObject, sqlHelper, controlSetArray,temp_incidence_table);		
 		
 		double[][][] pumaListBalancingResults = runListBalancing( "initial PUMA", pumaValues, pumaIndex, pumaControls );		
 		double[][] summedTotalMetaWeightsInitial = sumTotalWeights( pumaValues, pumaMetaCorresp, metaIndex, metaControls, pumaListBalancingResults[3] );
@@ -239,7 +304,6 @@ public class PopGenerator implements Serializable
     	}        
 		logger.info( "finished with PUMA balancing" );
 
-
     	// create a list of tazs in each puma and an array of TAZ controls for the TAZs in the pumas.
 		int[][] pumaTazs = new int[pumaValues.length][];
 		int[][][] pumaTazControls = new int[pumaValues.length][][];
@@ -253,9 +317,7 @@ public class PopGenerator implements Serializable
 				pumaTazControls[i][k] = tazControls[tazIndex[taz]];
 			}
 		}
-
 		
-
 	    logger.info( "Allocating household records to TAZs and MAZs ..." );        
 
 		if ( USE_JPPF ) {
@@ -276,7 +338,6 @@ public class PopGenerator implements Serializable
 		    	if ( RUN_THIS_PUMA_ONLY > 0 && puma != RUN_THIS_PUMA_ONLY )
 		    		continue;
 
-
 				int[] finalHouseholdIntegerWeights = doIntegerizing( "PUMA", puma, finalPumaControls[p], pumaIncidenceTables[p], pumaInitialWeights[p], importanceWeights, pumaFinalWeights[p], pumaFinalRelaxationFactors[p], totalHouseholdsTazBalancingIncidenceIndex, RUN_THIS_PUMA_ONLY > 0 && puma == RUN_THIS_PUMA_ONLY );                               
 		        int[] finalIntegerWeightTotals = getIntegerWeightTotals( pumaIncidenceTables[p], finalHouseholdIntegerWeights );
 
@@ -289,7 +350,6 @@ public class PopGenerator implements Serializable
 		        int[][] tempIndices = rd.getIndices();
 		        int[][] tempWeights = rd.getWeights();
 		        int[][] tempIds = rd.getIds();
-
 		        
 		    	// create a list of MAZs in each TAZ and an array of MAZ controls for the MAZs in the TAZ.
 				int[] tazMazs = new int[pumaTazs[p].length];
@@ -350,9 +410,12 @@ public class PopGenerator implements Serializable
 		String[] pumsHhAttributesList = pumsData.getOutputHhAttributes();
 		String[] pumsPersAttributesList = pumsData.getOutputPersAttributes();
 		
-	    sqlHelper.createSyntheticPopulationTables( pumsRecordIdFieldName, synpopHhOutputTableName, pumsHhAttributesTableName, pumsHhAttributesList, synpopPersOutputTableName, pumsPersAttributesTableName, pumsPersAttributesList );
-		
-		
+	    sqlHelper.createSyntheticPopulationTables( pumsRecordIdFieldName, synpopHhOutputTableName, pumsHhAttributesTableName, pumsHhAttributesList, synpopPersOutputTableName, pumsPersAttributesTableName, pumsPersAttributesList, id, pr.getDataSource() );
+	    sqlHelper.dropStagingTables(TEMP_INCIDENCE_TABLE_NAME+id);
+	    sqlHelper.dropStagingTables(TEMP_HHIDS_TABLE_NAME+id);
+	    
+	    //Wu added to update end time in DB
+	    updateEndTime(sqlHelper,id);
 	}
     
 
@@ -377,7 +440,7 @@ public class PopGenerator implements Serializable
     }
     
 
-    private void getIncidenceData( int[] pumaValues, Balance balanceObject, ListBalancingSqlHelper sqlHelper, Marginal[] controlSetArray ) {
+    private void getIncidenceData( int[] pumaValues, Balance balanceObject, ListBalancingSqlHelper sqlHelper, Marginal[] controlSetArray, String temp_incidence_table ) {
     	
 		logger.info( "getting incidence table data for pums ..." );
 
@@ -407,7 +470,7 @@ public class PopGenerator implements Serializable
 			int puma = pumaValues[i];
 			System.out.println("Processing incidence data for PUMA "+puma);
 			
-			pumaHhIds[i] = sqlHelper.submitGetIdsQuery( pumsRecordIdFieldName, pumsRecordHhTableName, puma );
+			pumaHhIds[i] = sqlHelper.submitGetIdsQuery( pumsRecordIdFieldName, pumsRecordHhTableName, puma, gqflag);
 			
 			int maxId = 0;
 			for ( int k=0; k < pumaHhIds[i].length; k++ )
@@ -433,7 +496,7 @@ public class PopGenerator implements Serializable
 			}
 
 			pumaInitialWeights[i] = sqlHelper.submitGetTableFieldQuery( pumsRecordWeightFieldName, pumsRecordHhTableName, pumsRecordIdFieldName, puma );
-			pumaIncidenceTables[i] = createIncidenceTablesForPuma( puma, sqlHelper, balanceObject, controlSetArray, pumaHhIdIndex[i] );
+			pumaIncidenceTables[i] = createIncidenceTablesForPuma( puma, sqlHelper, balanceObject, controlSetArray, pumaHhIdIndex[i], temp_incidence_table);
 		}
 
     }
@@ -1175,26 +1238,7 @@ public class PopGenerator implements Serializable
         int[][][] mazTazControlTotals = new int[controlSetArray.length][][];
         int[][][] mazPumaControlTotals = new int[controlSetArray.length][][];
         int[][][] tazControlTotals = new int[controlSetArray.length][][];
-        int[][][] tazPumaControlTotals = new int[controlSetArray.length][][];
-        
-
-        // table names for the control totals tables: maz controls, meta controls, additional taz controls
-        /*
-        String mazControlTotalsTableName = "";
-		String tazControlTotalsTableName = "";
-		String[] metaControlTotalsTableNames = null;
-		String[] metaAggregationLevels = null;
-        if ( balanceObject.getMazControlsTable() != null )
-			mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName();
-		if ( balanceObject.getTazControlsTable() != null )
-			tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName();
-		if ( balanceObject.getMetaControlsTables() != null ) {
-			metaControlTotalsTableNames = balanceObject.getMetaControlsTables().getControlsTableNames();
-			metaAggregationLevels = balanceObject.getMetaControlsTables().getControlsTableAggregations();
-		}
-		*/
-        
-
+        int[][][] tazPumaControlTotals = new int[controlSetArray.length][][];        
 		int[][][] pumaMetaControlTotals = new int[controlSetArray.length][][];
 		int[][][] tazMetaControlTotals = new int[controlSetArray.length][][];
 
@@ -1287,9 +1331,7 @@ public class PopGenerator implements Serializable
              controlSetFieldNames[c] = getControlSetFieldNames( conditionsMap );
         	         	
         }
-
-        
-                              
+                      
         // create tazControls array
         // get the taz aggregated maz controls and the taz additional controls and combine them into a single array
         int[][] mazTazControls = getCombinedControls( tazIndex, tazValues, mazTazControlTotals );
@@ -1360,9 +1402,7 @@ public class PopGenerator implements Serializable
         
     }    
 
-    
-
-	private int[][] createIncidenceTablesForPuma( int puma, ListBalancingSqlHelper sqlHelper, Balance balanceObject, Marginal[] controlSetArray, int[] hhIdIndex ) {
+	private int[][] createIncidenceTablesForPuma( int puma, ListBalancingSqlHelper sqlHelper, Balance balanceObject, Marginal[] controlSetArray, int[] hhIdIndex, String temp_incidence_table) {
 		
 		Set<Integer> tazBalanceIncidenceIndices = new TreeSet<Integer>();
 		Set<Integer> tazMetaBalanceIncidenceIndices = new TreeSet<Integer>();
@@ -1412,8 +1452,8 @@ public class PopGenerator implements Serializable
 			 // get the control set incidence type - simple or count, and create the incidence table.
 			 if ( controlType.equalsIgnoreCase( SIMPLE_TYPE ) ) {
 		         logger.info( "getting " + controlSetDescription + " " + SIMPLE_TYPE + " incidence table for PUMA "+puma);
-		         sqlHelper.createSimpleIncidenceTable( idFieldName, TEMP_INCIDENCE_TABLE_NAME, conditionsMap, puma );
-		         incidenceTables[c] = sqlHelper.submitGetSimpleIncidenceTableQuery( TEMP_INCIDENCE_TABLE_NAME, idFieldName, conditionsMap, hhIdIndex );
+		         sqlHelper.createSimpleIncidenceTable( idFieldName, temp_incidence_table, conditionsMap, puma, gqflag);
+		         incidenceTables[c] = sqlHelper.submitGetSimpleIncidenceTableQuery( temp_incidence_table, idFieldName, conditionsMap, hhIdIndex );
 		
 		         // check if control set is the total households control
 		         if ( controlSet.getIsTotalHouseldsControl() )
@@ -1438,8 +1478,8 @@ public class PopGenerator implements Serializable
 			 }
 			 else if ( controlType.equalsIgnoreCase( COUNT_TYPE ) ) {
 		         logger.info( "getting " + controlSetDescription + " " + COUNT_TYPE + " incidence table for PUMA "+puma);
-		         sqlHelper.createCountIncidenceTable( idFieldName, TEMP_INCIDENCE_TABLE_NAME, conditionsMap, puma );
-		         incidenceTables[c] = sqlHelper.submitGetCountIncidenceTableQuery( TEMP_INCIDENCE_TABLE_NAME, idFieldName, conditionsMap, hhIdIndex );
+		         sqlHelper.createCountIncidenceTable( idFieldName, temp_incidence_table, conditionsMap, puma, gqflag);
+		         incidenceTables[c] = sqlHelper.submitGetCountIncidenceTableQuery( temp_incidence_table, idFieldName, conditionsMap, hhIdIndex );
 		
 		         // determine whether the incidence table indices should be updated for TAZ balancing table or Meta balancing table
 		         if ( controlGeography.equalsIgnoreCase( balanceObject.getPumsData().getMazFieldName() ) ) {
@@ -2543,34 +2583,6 @@ public class PopGenerator implements Serializable
 
         return returnList;
     }
-
-
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-
-    	Long start = System.nanoTime();
-    	
-    	PopGenerator test = new PopGenerator();
-        try {        	
-            test.runPopulationGenerator( args[0] );        	
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        test.logger.info( String.format( "%s%.2f%s", "Time for full model run = ", (( System.nanoTime() - start )/60000000000.0), " minutes." ) );
-        
-        System.exit(0);
-        
-        //System.out.println("---- Integer programming example with CBC ----");
-        //Integerizer test = new Integerizer();        
-        //test.runIntegerProgrammingExample();
-    }
-    
     
 
     /**
@@ -2592,8 +2604,7 @@ public class PopGenerator implements Serializable
 		}
 
     }
-
-    
+ 
     
     private class ReturnData implements Serializable {
     	
@@ -2874,5 +2885,30 @@ public class PopGenerator implements Serializable
     	}
  
     }
+    
+
+
+    /**
+     * @param args
+     */
+    //Wu modified to pass in property file as 2nd argument and GQFLAG as 3rd argument
+    public static void main(String[] args)
+    {
+
+    	Long start = System.nanoTime();
+    	
+    	PopGenerator test = new PopGenerator();
+        try {        	
+            test.runPopulationGenerator( args[0], args[1], args[2]);        	
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        test.logger.info( String.format( "%s%.2f%s", "Time for full model run = ", (( System.nanoTime() - start )/60000000000.0), " minutes." ) );
+        
+        System.exit(0);
+    }
+    
     
 }

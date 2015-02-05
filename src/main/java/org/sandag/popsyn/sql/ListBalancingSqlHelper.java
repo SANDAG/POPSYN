@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
-
 import org.sandag.popsyn.testXmlParse.Constraint;
 import org.sandag.popsyn.testXmlParse.Marginal;
 
@@ -38,7 +37,7 @@ public class ListBalancingSqlHelper implements Serializable
 	
     private transient Logger logger = Logger.getLogger(ListBalancingSqlHelper.class);
     
-    private static final String SYNPOP_TEMP_TABLE_NAME = "dbo.temp";
+    private static final String SYNPOP_TEMP_TABLE_NAME = "popsyn_staging.temp";
 
     private String HOUSEHOLD_IDS_TABLE_NAME;
     private String INPUT_PUMS_HHTABLE_META_NAME;
@@ -90,19 +89,16 @@ public class ListBalancingSqlHelper implements Serializable
     }
 
 
-    public void createSyntheticPopulationTables( String idVariable, String outputHhTableName, String pumsHhTableName, String[] pumsHhFieldNames, String outputPersonTableName, String pumsPersTableName, String[] pumsPersFieldNames ) {
+    public void createSyntheticPopulationTables( String idVariable, String outputHhTableName, String pumsHhTableName, String[] pumsHhFieldNames, String outputPersonTableName, String pumsPersTableName, String[] pumsPersFieldNames, int id, int dataSource) {
 
-    	long start = System.currentTimeMillis();
-    	
-        clearTableFromDatabase( outputHhTableName );
-        clearTableFromDatabase( outputPersonTableName );
-        clearTableFromDatabase( SYNPOP_TEMP_TABLE_NAME+"hh" );
-        
-        String aliasTableName = "t1";
-        
+    	long start = System.currentTimeMillis();   
+    	String tempHhTable=SYNPOP_TEMP_TABLE_NAME+"hh_"+id;
+        clearTableFromDatabase(tempHhTable);
+          
+        String aliasTableName = "t1";       
         String tempQuery = "";
         if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {
-        	tempQuery = "CREATE TABLE " + SYNPOP_TEMP_TABLE_NAME+"hh" + " SELECT " + idVariable  + ", " + INPUT_PUMS_HHTABLE_PUMA_NAME;
+        	tempQuery = "CREATE TABLE " + tempHhTable + " SELECT " + idVariable  + ", " + INPUT_PUMS_HHTABLE_PUMA_NAME;
 	        for ( int j=0; j < pumsHhFieldNames.length; j++ )
 	        	tempQuery += ", " + pumsHhFieldNames[j];         
 	        tempQuery += " FROM " + pumsHhTableName;
@@ -111,42 +107,39 @@ public class ListBalancingSqlHelper implements Serializable
         	tempQuery = "SELECT " + idVariable  + ", " + INPUT_PUMS_HHTABLE_PUMA_NAME;
 	        for ( int j=0; j < pumsHhFieldNames.length; j++ )
 	        	tempQuery += ", " + pumsHhFieldNames[j];         
-	        tempQuery += " INTO " + SYNPOP_TEMP_TABLE_NAME+"hh" + " FROM " + pumsHhTableName;
+	        tempQuery += " INTO " + tempHhTable + " FROM " + pumsHhTableName;
         }
         submitExecuteUpdate( tempQuery );
 
-        tempQuery = "CREATE INDEX " + idVariable + " ON " + SYNPOP_TEMP_TABLE_NAME+"hh" + "(" + idVariable + ")";
+        tempQuery = "CREATE INDEX " + idVariable + " ON " + tempHhTable + "(" + idVariable + ")";
         submitExecuteUpdate( tempQuery );
-
-        
-        // create the new tables
-        String createQuery = "";
+                
+        // Wu modified, instead of creating a new table, now only insert records to an existing hh table
+        String insertQuery = "";
         if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {
-        	createQuery = "CREATE TABLE " + outputHhTableName + " SELECT " + HOUSEHOLD_IDS_TABLE_NAME + ".*";
-	        for ( int j=0; j < pumsHhFieldNames.length; j++ )
-	        	createQuery += ", " + aliasTableName + "." + pumsHhFieldNames[j]; 	        
-	        createQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + SYNPOP_TEMP_TABLE_NAME+"hh" + " " + aliasTableName +
+        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight])";       	        
+	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
+	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
 	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
         }
         else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {
-        	createQuery = "SELECT " + HOUSEHOLD_IDS_TABLE_NAME + ".*";
-	        for ( int j=0; j < pumsHhFieldNames.length; j++ )
-	        	createQuery += ", " + aliasTableName + "." + pumsHhFieldNames[j]; 	        
-	        createQuery += " INTO " + outputHhTableName + " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + SYNPOP_TEMP_TABLE_NAME+"hh" + " " + aliasTableName +
+        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight])";       
+	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
+	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
 	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
         }
-        submitExecuteUpdate( createQuery );
-
-        logger.info( "query for creating output synthetic households table = " + createQuery );
+        
+        submitExecuteUpdate( insertQuery );
+        logger.info( "query for creating output synthetic households table = " + insertQuery );
         logger.info( "Time for creating output synthetic households table = " + ( System.currentTimeMillis() - start )/60000.0 + " minutes." );
         
-
         start = System.currentTimeMillis();
-        
-        clearTableFromDatabase( SYNPOP_TEMP_TABLE_NAME+"pers" );
+       
+        String tempPersonTable=SYNPOP_TEMP_TABLE_NAME+"pers_"+id;
+        clearTableFromDatabase(tempPersonTable);
         
         if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {
-	        tempQuery = "CREATE TABLE " + SYNPOP_TEMP_TABLE_NAME+"pers" + " SELECT " + idVariable  + ", " + INPUT_PUMS_HHTABLE_PUMA_NAME;
+	        tempQuery = "CREATE TABLE " + tempPersonTable + " SELECT " + idVariable  + ", " + INPUT_PUMS_HHTABLE_PUMA_NAME;
 	        for ( int j=0; j < pumsPersFieldNames.length; j++ )
 	        	tempQuery += ", " + pumsPersFieldNames[j];         
 	        tempQuery += " FROM " + pumsPersTableName;
@@ -155,76 +148,48 @@ public class ListBalancingSqlHelper implements Serializable
         	tempQuery = "SELECT " + idVariable  + ", " + INPUT_PUMS_HHTABLE_PUMA_NAME;
 	        for ( int j=0; j < pumsPersFieldNames.length; j++ )
 	        	tempQuery += ", " + pumsPersFieldNames[j];         
-	        tempQuery += " INTO " + SYNPOP_TEMP_TABLE_NAME+"pers" + " FROM " + pumsPersTableName;
+	        tempQuery += " INTO " + tempPersonTable + " FROM " + pumsPersTableName;
         }
         submitExecuteUpdate( tempQuery );
 
-        tempQuery = "CREATE INDEX " + idVariable + " ON " + SYNPOP_TEMP_TABLE_NAME+"pers" + "(" + idVariable + ")";
+        tempQuery = "CREATE INDEX " + idVariable + " ON " + tempPersonTable + "(" + idVariable + ")";
         submitExecuteUpdate( tempQuery );
 
         
-        
-                
+        // Wu modified, instead of creating a new table, now only insert records to an existing person table.   
+        String aliasTableName2="t2";
+        insertQuery = "";
         if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {
-	        createQuery = "CREATE TABLE " + outputPersonTableName + " SELECT " + HOUSEHOLD_IDS_TABLE_NAME + ".*";
-	        for ( int j=0; j < pumsPersFieldNames.length; j++ )
-	        	createQuery += ", " + aliasTableName + "." + pumsPersFieldNames[j];        
-	        createQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + SYNPOP_TEMP_TABLE_NAME+"pers" + " " + aliasTableName +
-	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;        		        
+        	insertQuery = "INSERT INTO " + outputPersonTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [sporder], [final_weight])";       
+	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+ aliasTableName + ".sporder, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
+	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempPersonTable + " " + aliasTableName +
+	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable; 
+	        insertQuery +=" LEFT JOIN " + tempHhTable + " " + aliasTableName2 +
+    		" ON " + aliasTableName2 + "." +idVariable+ "=" + aliasTableName + "." + idVariable;
         }
         else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {
-	        createQuery = "SELECT " + HOUSEHOLD_IDS_TABLE_NAME + ".*";
-	        for ( int j=0; j < pumsPersFieldNames.length; j++ )
-	        	createQuery += ", " + aliasTableName + "." + pumsPersFieldNames[j];        
-	        createQuery += " INTO " + outputPersonTableName + " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + SYNPOP_TEMP_TABLE_NAME+"pers" + " " + aliasTableName +
-	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;        		        
+        	insertQuery = "INSERT INTO " + outputPersonTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [sporder], [final_weight])";       
+	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName2 + ".serialno, "+ aliasTableName + ".sporder, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
+	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempPersonTable + " " + aliasTableName +
+	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;  
+	        insertQuery +=" LEFT JOIN " + tempHhTable + " " + aliasTableName2 +
+    		" ON " + aliasTableName2 + "." +idVariable+ "=" + aliasTableName + "." + idVariable;
         }
-        submitExecuteUpdate( createQuery );
         
-        logger.info( "query for creating output synthetic persons table = " + createQuery );
+        submitExecuteUpdate( insertQuery );
+        logger.info( "query for creating output synthetic persons table = " + insertQuery );
         logger.info( "Time for creating output synthetic persons table = " + ( System.currentTimeMillis() - start )/60000.0 + " minutes." );
+        
+        dropStagingTables(tempHhTable);
+        dropStagingTables(tempPersonTable);
     }
-
-
-//    public void insertIntoHouseholdIdTable( int[][] mazIntegerWeights, int[][] mazPumsRecordIds, int taz, int[] mazIds, int[] mazPumas, int[] mazMetas, double[][] pumsWts ) {
-//
-//        // insert values into the new table
-//        String insertQuery = "INSERT INTO " + HOUSEHOLD_IDS_TABLE_NAME + " ( " + INPUT_PUMS_HHTABLE_META_NAME + ", " + INPUT_PUMS_HHTABLE_PUMA_NAME + " ," + INPUT_PUMS_HHTABLE_WEIGHT_NAME + ", taz, maz, finalPumsId, finalweight )\n";
-//        if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) )
-//        	insertQuery += "EXEC ('\n";
-//        String valuesString = "";
-//        
-//        for ( int m=0; m < mazIntegerWeights.length; m++ ) {
-//        	if ( mazIntegerWeights[m] == null )
-//        		continue;
-//
-//        	int maz = mazIds[m];
-//            for ( int j=0; j < mazIntegerWeights[m].length; j++ )
-//                if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) )
-//                	valuesString += "SELECT " + mazMetas[m] + ", " + mazPumas[m] + ", " + pumsWts[m][j] + ", " + taz + ", " + maz + ", " + mazPumsRecordIds[m][j] + ", " + mazIntegerWeights[m][j];
-//                else
-//                	valuesString += "SELECT " + mazMetas[m] + ", " + mazPumas[m] + ", " + pumsWts[m][j] + ", " + taz + ", " + maz + ", " + mazPumsRecordIds[m][j] + ", " + mazIntegerWeights[m][j] + " UNION ALL\n";
-//            }
-//
-//        // if no MAZs for this TAZ have non-zero weights, then there is no query to execute.
-//        if ( valuesString.length() == 0 )
-//        	return;
-//        
-//        // remove " UNION ALL\n" from end of string
-//        if ( ! dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {
-//	        int index = valuesString.lastIndexOf( " UNION ALL\n" );
-//	        insertQuery += valuesString.substring(0, index);
-//        }
-//        else {
-//	        insertQuery += valuesString;
-//        }
-//
-//        if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) )
-//        	insertQuery += "')\n";
-//        
-//        submitExecuteUpdate( insertQuery );
-//        
-//    }
+    
+    
+    //Wu added to drop staging tables
+    public void dropStagingTables(String table){
+    	String query = "DROP TABLE " + table;
+        submitExecuteUpdate(query);
+    }
 
     public void insertIntoHouseholdIdTable( int[][] mazIntegerWeights, int[][] mazPumsRecordIds, int taz, int[] mazIds, int[] mazPumas, int[] mazMetas, double[][] pumsWts ) {
 
@@ -271,11 +236,12 @@ public class ListBalancingSqlHelper implements Serializable
 	    insertQuery += valuesString.substring(0, index);
 	    
     	//submit query
+	    //System.out.println("insert query="+insertQuery);
         submitExecuteUpdate( insertQuery );
         
     }
 
-    public void createSimpleIncidenceTable( String idVariable, String tableName, HashMap<Integer, Constraint> constraints, int puma ) {
+    public void createSimpleIncidenceTable( String idVariable, String tableName, HashMap<Integer, Constraint> constraints, int puma, int gqflag ) {
 
         clearTableFromDatabase( tableName );
         
@@ -296,7 +262,7 @@ public class ListBalancingSqlHelper implements Serializable
                 createQuery += ( ", " + constraint.getField() + " FLOAT" ); 
                 insertQuery += ( constraint.getField() + ") SELECT " + idVariable + ", "
                         + constraint.getField() + " FROM " + ((Marginal)constraint.getParentObject()).getTable()
-                        + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma +" AND GQFLAG=0"); 
+                        + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma +" AND GQFLAG="+gqflag); 
             }
             
             createQuery += ( ", " + constraint.getField() + constraint.getId() + " FLOAT" ); 
@@ -331,7 +297,7 @@ public class ListBalancingSqlHelper implements Serializable
     }
 
 
-    public void createCountIncidenceTable( String idVariable, String tableName, HashMap<Integer, Constraint> constraints, int puma ) {
+    public void createCountIncidenceTable( String idVariable, String tableName, HashMap<Integer, Constraint> constraints, int puma, int gqflag ) {
 
         clearTableFromDatabase( tableName );
         
@@ -352,7 +318,7 @@ public class ListBalancingSqlHelper implements Serializable
                 createQuery += ( ", " + constraint.getField() + " FLOAT" ); 
                 insertQuery += ( constraint.getField() + ") SELECT " + idVariable + ", "
                     + constraint.getField() + " FROM " + ((Marginal)constraint.getParentObject()).getTable()
-                    + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma+ " AND GQFLAG=0"); 
+                    + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma+ " AND GQFLAG="+gqflag); 
             }
             
             createQuery += ( ", " + constraint.getField() + constraint.getId() + " FLOAT" ); 
@@ -380,9 +346,9 @@ public class ListBalancingSqlHelper implements Serializable
         int index = updateQuery.lastIndexOf( "," );
         updateQuery = updateQuery.substring(0, index);
         
-        System.out.println("createQ="+createQuery);
-        System.out.println("insertQ="+insertQuery);
-        System.out.println("updateQ="+updateQuery);
+        //System.out.println("createQ="+createQuery);
+        //System.out.println("insertQ="+insertQuery);
+        //System.out.println("updateQ="+updateQuery);
         
         
         // create the incidence table and populate it
@@ -439,6 +405,33 @@ public class ListBalancingSqlHelper implements Serializable
         return result;
         
     }
+    
+    //Wu added to get identity id
+    public int getIdentity( String query ) {        
+        Connection conn = null;
+        int result=-1;
+        try
+        {
+            conn = ConnectionHelper.getConnection( dbServer, dbName, dbHost, user, password );
+            PreparedStatement ps = conn.prepareStatement( query );
+            ResultSet rs = ps.executeQuery();
+            while ( rs.next() )
+                result=rs.getInt(1);
+        }
+        catch (SQLException e)
+        {
+            logger.error( "error executing SQL query:" );
+            logger.error( "SQL:  " + query, e );
+            throw new DAOException(e.getMessage());
+        }
+        finally
+        {
+        	ConnectionHelper.closeConnection(conn);
+        }
+        
+        return result;
+        
+    }   
 
     /**
      * Form and submit the query to get the one household id field from the table to be balanced
@@ -448,13 +441,21 @@ public class ListBalancingSqlHelper implements Serializable
      * @return int[] of ids
      * 
      */
-    public int[] submitGetIdsQuery( String idFieldName, String tableName, int puma ) {
+    //Wu modified to query hhids by HH or GQ
+    public int[] submitGetIdsQuery( String idFieldName, String tableName, int puma, int gqflag ) {
 
         // define the query to get the weight column.
         String query = "SELECT " + idFieldName + " FROM " + tableName
-                + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma + " ORDER BY " + idFieldName; 
+                + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma+" AND gqflag=" + gqflag + " ORDER BY " + idFieldName; 
      
-        System.out.println("Getting hhids from "+INPUT_PUMS_HHTABLE_PUMA_NAME+" for PUMA "+puma+" to be balanced.");
+        String hhtype;
+        if(gqflag==0){
+        	hhtype="hhids";
+        }else{
+        	hhtype="gqids";
+        }
+        
+        System.out.println("Getting "+hhtype+" from "+INPUT_PUMS_HHTABLE_PUMA_NAME+" for PUMA "+puma+" to be balanced.");
         System.out.println("---Query="+query);
         
         int[] result;
@@ -833,7 +834,7 @@ public class ListBalancingSqlHelper implements Serializable
             	System.out.println("---Input PUMS data not consistent in person and hh tables, quitting...");
             	System.exit(-1);            	
             }
-            
+                                
             result = new int[rsMap.size()][];
             
             for ( int k : rsMap.keySet() ) {
@@ -891,8 +892,8 @@ public class ListBalancingSqlHelper implements Serializable
 
     }
 
-    
-    private void submitExecuteUpdate( String query ) {
+    //Wu chanaged this to public to make it visible to other PopGenerator
+    public void submitExecuteUpdate( String query ) {
         
         Connection conn = null;
         try
