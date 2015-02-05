@@ -6,25 +6,25 @@
     <type>MS_SQL</type>
     <!--<user></user>-->
     <password></password>
-    <dbName>ws</dbName>
+    <dbName>abm_13_2_3_dev </dbName>
   </database>
 
   <!-- Specify the PUMS data table names from which PUMA incidence tables are generated, as well as the field name for a unique identifier and the PUMS weight field name -->
   <pumsData>
     <idField>hhnum</idField>
-    <pumaFieldName>PUMA</pumaFieldName>
-    <metaFieldName>REGION</metaFieldName>
-    <tazFieldName>TAZ</tazFieldName>
-    <mazFieldName>MAZ</mazFieldName>
+    <pumaFieldName>puma</pumaFieldName>
+    <metaFieldName>region</metaFieldName>
+    <tazFieldName>taz13</tazFieldName>
+    <mazFieldName>mgra13</mazFieldName>
     <weightField>WGTP</weightField>
-    <hhTable>dbo.gqhhtable</hhTable>
-    <persTable>dbo.gqperstable</persTable>
-    <pumsHhTable>dbo.gqhhtable</pumsHhTable>
+    <hhTable>[popsyn_input].[hh]</hhTable>
+    <persTable>[popsyn_input].[person]</persTable>
+    <pumsHhTable>[popsyn_input].[hh]</pumsHhTable>
     <pumsHhIdField>hhnum</pumsHhIdField>
-    <pumsPersTable>dbo.gqperstable</pumsPersTable>
+    <pumsPersTable>[popsyn_input].[person]</pumsPersTable>
     <maxExpansionFactor>50</maxExpansionFactor>
-    <synpopOutputHhTableName>dbo.gq_hh</synpopOutputHhTableName>
-    <synpopOutputPersTableName>dbo.gq_person</synpopOutputPersTableName>
+    <synpopOutputHhTableName>[popsyn].[synpop_hh]</synpopOutputHhTableName>
+    <synpopOutputPersTableName>[popsyn].[synpop_person]</synpopOutputPersTableName>
     <outputHhAttributes>serialno, np, hincp, ten, bld, nwrkrs_esr, hhincAdj, adjinc, veh, hht, type, npf, hupac, GQFLAG, GQTYPE</outputHhAttributes>
     <outputPersAttributes>sporder, agep, sex, wkhp, esr, schg, employed, wkw, mil, schl, indp02, indp07, occp02, occp10, GQFLAG, GQTYPE</outputPersAttributes>
   </pumsData>
@@ -32,9 +32,9 @@
   <!-- Specify the table name and name of id field for the MAZ control totals table -->
   <mazControlsTable>
     <mazTable id="1">
-      <table_name>dbo.control_totals_maz</table_name>
-      <id_field_name>MAZ</id_field_name>
-      <aggregation_level>MAZ</aggregation_level>
+      <table_name>[popsyn_input].[control_targets_mgra_sr13]</table_name>
+      <id_field_name>mgra13</id_field_name>
+      <aggregation_level>mgra13</aggregation_level>
     </mazTable>
   </mazControlsTable>
 
@@ -45,9 +45,9 @@
   <!-- Specify the table name, id field name, and aggregation level for each table of META control totals -->
   <metaControlsTables>
     <metaTable id="1">
-      <table_name>dbo.control_totals_meta</table_name>
-      <id_field_name>REGION</id_field_name>
-      <aggregation_level>PUMA</aggregation_level>
+      <table_name>[popsyn_input].[control_targets_region_sr13]</table_name>
+      <id_field_name>region</id_field_name>
+      <aggregation_level>puma</aggregation_level>
     </metaTable>
   </metaControlsTables>
 
@@ -55,15 +55,15 @@
     <!-- Total GQ population in each TAZ Control#0 -->
     <marginals>
       <id>0</id>
-      <description>MAZ Level Control: Total GQ Population</description>
+      <description>MGRA Level Control: Total GQ Population</description>
       <totalHouseholdsControl>true</totalHouseholdsControl>
       <controlType>count</controlType>
-      <geographyType>MAZ</geographyType>
-      <table>dbo.gqperstable</table>
+      <geographyType>mgra13</geographyType>
+      <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000000000</importance>
         <field>WGTP</field>
-        <controlField>GQ_NONINST</controlField>
+        <controlField>gq_noninst</controlField>
         <type>interval</type>
         <lo_value>0</lo_value>
         <lo_type>open</lo_type>
@@ -78,14 +78,14 @@
     <!-- One category: University -->
     <marginals>
       <id>1</id>
-      <description>MAZ Control: Number of University GQ population</description>
-      <geographyType>MAZ</geographyType>
+      <description>MGRA Control: Number of University GQ population</description>
+      <geographyType>mgra13</geographyType>
       <controlType>count</controlType>
-      <table>dbo.gqperstable</table>
+      <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>GQTYPE</field>
-        <controlField>GQ_UNIV</controlField>
+        <controlField>gq_civ_college</controlField>
         <type>equality</type>
         <value>1</value>
       </constraint>
@@ -99,11 +99,11 @@
       <description>Regional META Control: Total Regional GQ Population</description>
       <geographyType>META</geographyType>
       <controlType>count</controlType>
-      <table>dbo.gqperstable</table>
+      <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000</importance>
         <field>WGTP</field>
-        <controlField>NONINST_GQPOP</controlField>
+        <controlField>gq_noninst</controlField>
         <type>interval</type>
         <lo_value>0</lo_value>
         <lo_type>open</lo_type>
