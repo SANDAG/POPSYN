@@ -238,7 +238,8 @@ public class PopGenerator implements Serializable
 		
 		//Wu added for reading properties from popsyn.properties file and retrieve run version as id
 		PopSynProperties pr=getProperties(propertyFile);
-    	writePropertiesToDB(pr, sqlHelper);    	   
+		//Wu added, only write to version table if running general pop, otherwise run id will be increased by 1 in GQ step
+		if(gqflag==0) writePropertiesToDB(pr, sqlHelper);    	   
     	int id=getRunVersion(pr, sqlHelper);	
 	    String temp_hhid_table=TEMP_HHIDS_TABLE_NAME+id;
 	    String temp_incidence_table=TEMP_INCIDENCE_TABLE_NAME+id;
