@@ -117,14 +117,14 @@ public class ListBalancingSqlHelper implements Serializable
         // Wu modified, instead of creating a new table, now only insert records to an existing hh table
         String insertQuery = "";
         if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {
-        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight])";       	        
-	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
+        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight], [mgra])";       	        
+	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";;
 	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
 	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
         }
         else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {
-        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight])";       
-	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
+        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight], [mgra])";       
+	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";
 	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
 	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
         }
