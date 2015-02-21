@@ -89,7 +89,7 @@ public class ListBalancingSqlHelper implements Serializable
     }
 
 
-    public void createSyntheticPopulationTables( String idVariable, String outputHhTableName, String pumsHhTableName, String[] pumsHhFieldNames, String outputPersonTableName, String pumsPersTableName, String[] pumsPersFieldNames, int id, int dataSource) {
+    public void createSyntheticPopulationTables( String idVariable, String outputHhTableName, String pumsHhTableName, String[] pumsHhFieldNames, String outputPersonTableName, String pumsPersTableName, String[] pumsPersFieldNames, int id, int dataSource, int gqflag) {
 
     	long start = System.currentTimeMillis();   
     	String tempHhTable=SYNPOP_TEMP_TABLE_NAME+"hh_"+id;
@@ -113,16 +113,16 @@ public class ListBalancingSqlHelper implements Serializable
 
         tempQuery = "CREATE INDEX " + idVariable + " ON " + tempHhTable + "(" + idVariable + ")";
         submitExecuteUpdate( tempQuery );
-                
+ 	        	                      
         // Wu modified, instead of creating a new table, now only insert records to an existing hh table
         String insertQuery = "";
-        if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {
-        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight], [mgra])";       	        
-	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";;
-	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
-	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
+        if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {    		
+	        insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight], [mgra])";       	        
+		    insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";;
+		    insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
+		        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
         }
-        else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {
+        else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {     	
         	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight], [mgra])";       
 	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";
 	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
@@ -154,8 +154,7 @@ public class ListBalancingSqlHelper implements Serializable
 
         tempQuery = "CREATE INDEX " + idVariable + " ON " + tempPersonTable + "(" + idVariable + ")";
         submitExecuteUpdate( tempQuery );
-
-        
+      
         // Wu modified, instead of creating a new table, now only insert records to an existing person table.   
         String aliasTableName2="t2";
         insertQuery = "";
@@ -184,7 +183,15 @@ public class ListBalancingSqlHelper implements Serializable
         dropStagingTables(tempPersonTable);
     }
     
-    
+    //Wu added to resolve primary key issues in synpop_hh and sypop_person caused be running general pop and GQ as two separate steps
+    public void reseedTempId(String tableName, int runId){
+    	String query="SELECT MAX(temp_id)+1 FROM " + tableName + " WHERE [popsyn_run_id]="+runId; 
+    	int maxTempId=getIdentity(query);
+        String reseedQuery="DBCC CHECKIDENT ('popsyn_staging.hhids_"+runId+"',RESEED, "+maxTempId+")";
+        System.out.println("reseed query="+reseedQuery);
+        	submitExecuteUpdate( reseedQuery );
+    }  
+     
     //Wu added to drop staging tables
     public void dropStagingTables(String table){
     	String query = "DROP TABLE " + table;
@@ -898,7 +905,6 @@ public class ListBalancingSqlHelper implements Serializable
         Connection conn = null;
         try
         {
-
             conn = ConnectionHelper.getConnection( dbServer, dbName, dbHost, user, password );
             PreparedStatement ps = conn.prepareStatement( query );
             ps.executeUpdate();
@@ -915,7 +921,6 @@ public class ListBalancingSqlHelper implements Serializable
         }
         
     }
-
 
     private void submitExecuteUpdateQuery( Connection conn, String query ) throws SQLException {
         PreparedStatement ps = conn.prepareStatement( query );
