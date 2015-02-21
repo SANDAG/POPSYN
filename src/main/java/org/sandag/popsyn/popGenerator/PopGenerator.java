@@ -250,6 +250,8 @@ public class PopGenerator implements Serializable
     	
 		// create the sql table in which household records will be stored
 		sqlHelper.createHouseholdIdTable(temp_hhid_table, balanceObject.getPumsData().getPumaFieldName(), balanceObject.getPumsData().getMetaFieldName(), balanceObject.getPumsData().getWeightFieldName() );
+	    //reseed tempId in hh id table
+	    if(gqflag==1) sqlHelper.reseedTempId(balanceObject.getPumsData().getSynpopOutputHhTableName(), id);
 		
 		//get max expansion factor
 		max_expansion_factor = balanceObject.getPumsData().getMaxExpansionFactor();
@@ -411,7 +413,7 @@ public class PopGenerator implements Serializable
 		String[] pumsHhAttributesList = pumsData.getOutputHhAttributes();
 		String[] pumsPersAttributesList = pumsData.getOutputPersAttributes();
 		
-	    sqlHelper.createSyntheticPopulationTables( pumsRecordIdFieldName, synpopHhOutputTableName, pumsHhAttributesTableName, pumsHhAttributesList, synpopPersOutputTableName, pumsPersAttributesTableName, pumsPersAttributesList, id, pr.getDataSource() );
+	    sqlHelper.createSyntheticPopulationTables( pumsRecordIdFieldName, synpopHhOutputTableName, pumsHhAttributesTableName, pumsHhAttributesList, synpopPersOutputTableName, pumsPersAttributesTableName, pumsPersAttributesList, id, pr.getDataSource(), gqflag);
 	    sqlHelper.dropStagingTables(TEMP_INCIDENCE_TABLE_NAME+id);
 	    sqlHelper.dropStagingTables(TEMP_HHIDS_TABLE_NAME+id);
 	    
