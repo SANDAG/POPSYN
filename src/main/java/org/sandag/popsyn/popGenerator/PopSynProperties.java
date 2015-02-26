@@ -6,7 +6,6 @@ package org.sandag.popsyn.popGenerator;
  */
 
 public class PopSynProperties {
-	protected int year;
 	protected int landUseVersion;
 	protected int dataSource;
 	protected int puma;
@@ -16,12 +15,6 @@ public class PopSynProperties {
 	protected String startTime;
 	protected String endTime;
 	
-	public int getYear() {
-		return year;
-	}
-	public void setYear(int year) {
-		this.year = year;
-	}
 	public int getLandUseVersion() {
 		return landUseVersion;
 	}

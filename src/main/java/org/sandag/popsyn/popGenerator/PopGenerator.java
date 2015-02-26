@@ -156,12 +156,10 @@ public class PopGenerator implements Serializable
     private PopSynProperties getProperties(String pfile){
     	PopSynProperties result=new PopSynProperties();
     	PropertyParser p=new PropertyParser(pfile);
-    	int year=new Integer(p.getPropertyByName("popsyn3.year")).intValue();
     	int landUseVersion=new Integer(p.getPropertyByName("popsyn3.landUseVersion")).intValue();
     	int dataSource=new Integer(p.getPropertyByName("popsyn3.dataSource")).intValue();
     	int puma=new Integer(p.getPropertyByName("popsyn3.puma")).intValue();
     	int taz=new Integer(p.getPropertyByName("popsyn3.taz")).intValue();
-    	result.setYear(year);
     	result.setDataSource(dataSource);
     	result.setLandUseVersion(landUseVersion);
     	result.setPuma(puma);
@@ -178,8 +176,8 @@ public class PopGenerator implements Serializable
     	if(ptemp!=0) puma=""+ptemp;
     	if(ttemp!=0) taz=""+ttemp;
     	
-    	String query="INSERT INTO "+PROPERTY_TABLE_NAME+"(popsyn_data_source_id, lu_version_id, year, user_name, start_time, end_time, validated, puma, taz) VALUES("
-        +p.getDataSource()+","+p.getLandUseVersion()+","+p.getYear()+",CURRENT_USER, getDate(), null, null, "+puma+", "+taz+")";    
+    	String query="INSERT INTO "+PROPERTY_TABLE_NAME+"(popsyn_data_source_id, lu_version_id, user_name, start_time, end_time, validated, puma, taz) VALUES("
+        +p.getDataSource()+","+p.getLandUseVersion()+",CURRENT_USER, getDate(), null, null, "+puma+", "+taz+")";    
     	//System.out.println("write property query="+query);
     	sqlHelper.submitExecuteUpdate(query);
     }
@@ -188,7 +186,6 @@ public class PopGenerator implements Serializable
     	String query="SELECT MAX([popsyn_run_id]) FROM "+PROPERTY_TABLE_NAME
     			+" WHERE [popsyn_data_source_id] ="+p.getDataSource()
     			+" AND [lu_version_id] ="+p.getLandUseVersion()
-    			+" AND [year] ="+p.getYear()
 				+" AND [user_name] = CURRENT_USER";
     	//System.out.println(query);
     	int id=sqlHelper.getIdentity(query);   	
@@ -203,18 +200,18 @@ public class PopGenerator implements Serializable
     
     private void setControlTableNames(Balance balanceObject){
         if ( balanceObject.getMazControlsTable() != null )
-			//mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"("+db.getLu_version()+","+db.getYear()+")";   
-		    mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"(1,2012)";  
+			mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"("+db.getLu_version()+")";   
+		    //mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"(1)";  
 		if ( balanceObject.getTazControlsTable() != null )
-			//tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName()+"("+db.getLu_version()+","+db.getYear()+")";
-		    tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName()+"(1,2012)";
+			tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName()+"("+db.getLu_version()+")";  ;
+		    //tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName()+"(1)";
 		if ( balanceObject.getMetaControlsTables() != null ) {
 			metaControlTotalsTableNames = balanceObject.getMetaControlsTables().getControlsTableNames();
 			metaAggregationLevels = balanceObject.getMetaControlsTables().getControlsTableAggregations();
 			for(int i=0; i<metaControlTotalsTableNames.length; i++){
-				//metaControlTotalsTableNames[i]=metaControlTotalsTableNames[i]+"("+db.getLu_version()+","+db.getYear()+")";
 				System.out.println("+++++++++++++++metaControlTable===="+metaControlTotalsTableNames[i]);
-				metaControlTotalsTableNames[i]=metaControlTotalsTableNames[i]+"(1,2012)";
+				metaControlTotalsTableNames[i]=metaControlTotalsTableNames[i]+"("+db.getLu_version()+")";
+				//metaControlTotalsTableNames[i]=metaControlTotalsTableNames[i]+"(1)";
 			}
 		}
     }
