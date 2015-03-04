@@ -65,13 +65,13 @@ public class ControlTableGenerator {
         ConnectionHelper.getInstance( dbServer);
     }
     
-    private ResultSet generateControlTable(String funName, int lu_version, int year){
+    private ResultSet generateControlTable(String funName, int lu_version){
         Connection con = null;
         ResultSet rs=null;
         try {
             Class.forName(jdbcDriver);
             con = ConnectionHelper.getConnection( dbServer, dbName, dbHost, user, password);        
-            String query = "SELECT * from "+funName+"("+lu_version+","+year+")";
+            String query = "SELECT * from "+funName+"("+lu_version+")";
             PreparedStatement ps = con.prepareStatement(query);
             rs = ps.executeQuery();
             int count=0;
