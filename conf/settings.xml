@@ -58,7 +58,6 @@
   
     <!-- Total households in each MAZ Control#0 -->
   <target>
-
     <marginals>
       <id>0</id>
       <description>MGRA Level Control: Total Number of Households</description>
@@ -367,11 +366,58 @@
       </constraint>
     </marginals>
   </target>
+ 
+    <!-- Define conditions for person race Control#7 -->
+    <!-- Five categories: hisp, nhw, nhb, nh_popsyn_other, nha -->
+   <target>
+    <marginals>
+      <id>7</id>
+      <description>TAZ Control: Number of persons by ethnicity</description>
+      <geographyType>taz13</geographyType>
+      <controlType>simple</controlType>
+      <table>[popsyn_input].[person]</table>
+      <constraint id="1">
+        <importance>1000</importance>
+        <field>race_popsyn</field>
+        <controlField>hisp</controlField>
+        <type>equality</type>
+        <value>1</value>
+      </constraint>
+      <constraint id="2">
+        <importance>1000</importance>
+        <field>race_popsyn</field>
+        <controlField>nhw</controlField>
+        <type>equality</type>
+        <value>2</value>
+      </constraint>
+      <constraint id="3">
+        <importance>1000</importance>
+        <field>race_popsyn</field>
+        <controlField>nhb</controlField>
+        <type>equality</type>
+        <value>3</value>
+      </constraint>
+      <constraint id="4">
+        <importance>1000</importance>
+        <field>race_popsyn</field>
+        <controlField>nho_popsyn</controlField>
+        <type>equality</type>
+        <value>4</value>
+      </constraint>
+      <constraint id="5">
+        <importance>1000</importance>
+        <field>race_popsyn</field>
+        <controlField>nha</controlField>
+        <type>equality</type>
+        <value>5</value>
+      </constraint>
+     </marginals>
+  </target>
   
   <target>
     <!-- Define conditions for population Control#7 -->
     <marginals>
-      <id>7</id>
+      <id>8</id>
       <description>Regional META Control: Total Regional Population</description>
       <geographyType>META</geographyType>
       <controlType>COUNT</controlType>

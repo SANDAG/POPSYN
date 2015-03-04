@@ -198,20 +198,17 @@ public class PopGenerator implements Serializable
     	    	sqlHelper.submitExecuteUpdate(query);    	
     }
     
-    private void setControlTableNames(Balance balanceObject){
+    private void setControlTableNames(Balance balanceObject, int luVersion){
         if ( balanceObject.getMazControlsTable() != null )
-			mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"("+db.getLu_version()+")";   
-		    //mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"(1)";  
+			mazControlTotalsTableName = balanceObject.getMazControlsTable().getControlsTableName()+"("+luVersion+")";   
 		if ( balanceObject.getTazControlsTable() != null )
-			tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName()+"("+db.getLu_version()+")";  ;
-		    //tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName()+"(1)";
+			tazControlTotalsTableName = balanceObject.getTazControlsTable().getControlsTableName()+"("+luVersion+")";  ;
 		if ( balanceObject.getMetaControlsTables() != null ) {
 			metaControlTotalsTableNames = balanceObject.getMetaControlsTables().getControlsTableNames();
 			metaAggregationLevels = balanceObject.getMetaControlsTables().getControlsTableAggregations();
 			for(int i=0; i<metaControlTotalsTableNames.length; i++){
 				System.out.println("+++++++++++++++metaControlTable===="+metaControlTotalsTableNames[i]);
-				metaControlTotalsTableNames[i]=metaControlTotalsTableNames[i]+"("+db.getLu_version()+")";
-				//metaControlTotalsTableNames[i]=metaControlTotalsTableNames[i]+"(1)";
+				metaControlTotalsTableNames[i]=metaControlTotalsTableNames[i]+"("+luVersion+")";
 			}
 		}
     }
@@ -223,18 +220,19 @@ public class PopGenerator implements Serializable
 		TargetsSAXParser saxParser = new TargetsSAXParser();
 		saxParser.parseConditions( xmlFileName );
 		
+		//Wu added for reading properties from popsyn.properties file and retrieve run version as id
+		PopSynProperties pr=getProperties(propertyFile);
+		
 		Marginal[] controlSetArray = saxParser.getControlSetArray();
 		Balance balanceObject = saxParser.getBalanceObject();
 		db = balanceObject.getDatabase();        
 		
 		//Wu Added for adjustment to fit SANDAG database
-		setControlTableNames(balanceObject);
+		setControlTableNames(balanceObject,pr.getLandUseVersion());
 		
 		// create a helper object for forming and submitting SQL commands to the database server
 		ListBalancingSqlHelper sqlHelper = new ListBalancingSqlHelper( db.getDbType(), db.getDbName(), db.getDbUser(), db.getDbPassword(), db.getDbHost());
 		
-		//Wu added for reading properties from popsyn.properties file and retrieve run version as id
-		PopSynProperties pr=getProperties(propertyFile);
 		//Wu added, only write to version table if running general pop, otherwise run id will be increased by 1 in GQ step
 		if(gqflag==0) writePropertiesToDB(pr, sqlHelper);    	   
     	int id=getRunVersion(pr, sqlHelper);	
