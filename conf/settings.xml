@@ -170,7 +170,7 @@
         <type>interval</type>
         <lo_value>-999999999</lo_value>
         <lo_type>closed</lo_type>
-        <hi_value>25000</hi_value>
+        <hi_value>30000</hi_value>
         <hi_type>open</hi_type>
       </constraint>
       <constraint id="2">
@@ -178,9 +178,9 @@
         <field>hhincAdj</field>
         <controlField>hh_income_cat_2</controlField>
         <type>interval</type>
-        <lo_value>25000</lo_value>
+        <lo_value>30000</lo_value>
         <lo_type>closed</lo_type>
-        <hi_value>50000</hi_value>
+        <hi_value>60000</hi_value>
         <hi_type>open</hi_type>
       </constraint>
       <constraint id="3">
@@ -188,9 +188,9 @@
         <field>hhincAdj</field>
         <controlField>hh_income_cat_3</controlField>
         <type>interval</type>
-        <lo_value>50000</lo_value>
+        <lo_value>60000</lo_value>
         <lo_type>closed</lo_type>
-        <hi_value>75000</hi_value>
+        <hi_value>100000</hi_value>
         <hi_type>open</hi_type>
       </constraint>
       <constraint id="4">
@@ -198,9 +198,9 @@
         <field>hhincAdj</field>
         <controlField>hh_income_cat_4</controlField>
         <type>interval</type>
-        <lo_value>75000</lo_value>
+        <lo_value>100000</lo_value>
         <lo_type>closed</lo_type>
-        <hi_value>100000</hi_value>
+        <hi_value>150000</hi_value>
         <hi_type>open</hi_type>
       </constraint>
        <constraint id="5">
@@ -208,7 +208,7 @@
         <field>hhincAdj</field>
         <controlField>hh_income_cat_5</controlField>
         <type>interval</type>
-        <lo_value>100000</lo_value>
+        <lo_value>150000</lo_value>
         <lo_type>closed</lo_type>
         <hi_value>999999999</hi_value>
         <hi_type>open</hi_type>
