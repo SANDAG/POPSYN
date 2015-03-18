@@ -22,7 +22,7 @@
     <pumsHhTable>[popsyn_input].[hh]</pumsHhTable>
     <pumsHhIdField>hhnum</pumsHhIdField>
     <pumsPersTable>[popsyn_input].[person]</pumsPersTable>
-    <maxExpansionFactor>50</maxExpansionFactor>
+    <maxExpansionFactor>500</maxExpansionFactor>
     <synpopOutputHhTableName>[popsyn].[synpop_hh]</synpopOutputHhTableName>
     <synpopOutputPersTableName>[popsyn].[synpop_person]</synpopOutputPersTableName>
     <outputHhAttributes>serialno, np, hincp, ten, bld, nwrkrs_esr, hhincAdj, adjinc, veh, hht, type, npf, hupac, GQFLAG, GQTYPE</outputHhAttributes>
@@ -50,9 +50,9 @@
       <aggregation_level>puma</aggregation_level>
     </metaTable>
   </metaControlsTables>
-
+  
+  <!-- Total GQ population in each MGRA Control#0 -->
   <target>
-    <!-- Total GQ population in each TAZ Control#0 -->
     <marginals>
       <id>0</id>
       <description>MGRA Level Control: Total GQ Population</description>
@@ -62,20 +62,17 @@
       <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000000000</importance>
-        <field>WGTP</field>
+        <field>gqflag</field>
         <controlField>gq_noninst</controlField>
-        <type>interval</type>
-        <lo_value>0</lo_value>
-        <lo_type>open</lo_type>
-        <hi_value>infinity</hi_value>
-        <hi_type>open</hi_type>
+         <type>equality</type>
+        <value>1</value>
       </constraint>
     </marginals>
   </target>
 
+  <!-- Define conditions for University GQ population by type Control#1 -->
+  <!-- One category: University -->
   <target>
-    <!-- Define conditions for University GQ population by type Control#1 -->
-    <!-- One category: University -->
     <marginals>
       <id>1</id>
       <description>MGRA Control: Number of University GQ population</description>
@@ -84,10 +81,29 @@
       <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000</importance>
-        <field>GQTYPE</field>
+        <field>gqtype</field>
         <controlField>gq_civ_college</controlField>
         <type>equality</type>
         <value>1</value>
+      </constraint>
+    </marginals>
+  </target>
+  
+  <!-- Define conditions for Military GQ population by type Control#1 -->
+  <!-- One category: University -->
+  <target>
+    <marginals>
+      <id>2</id>
+      <description>MGRA Control: Number of Military GQ population</description>
+      <geographyType>mgra13</geographyType>
+      <controlType>count</controlType>
+      <table>[popsyn_input].[person]</table>
+      <constraint id="1">
+        <importance>1000</importance>
+        <field>gqtype</field>
+        <controlField>gq_mil</controlField>
+        <type>equality</type>
+        <value>2</value>
       </constraint>
     </marginals>
   </target>
@@ -95,20 +111,17 @@
   <target>
     <!-- Define conditions for reginoal GQ population Control#2 -->
     <marginals>
-      <id>2</id>
+      <id>3</id>
       <description>Regional META Control: Total Regional GQ Population</description>
       <geographyType>META</geographyType>
       <controlType>count</controlType>
       <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000</importance>
-        <field>WGTP</field>
+        <field>gqflag</field>
         <controlField>gq_noninst</controlField>
-        <type>interval</type>
-        <lo_value>0</lo_value>
-        <lo_type>open</lo_type>
-        <hi_value>infinity</hi_value>
-        <hi_type>open</hi_type>
+        <type>equality</type>
+        <value>1</value>
       </constraint>
     </marginals>
   </target>

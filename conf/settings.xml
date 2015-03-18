@@ -110,44 +110,22 @@
       </constraint>
     </marginals>
   </target>
-
-    <!-- Define conditions for households by household size Control#2 -->
-    <!-- Four categories: 1,2,3,4+ Sized HH -->
+  
   <target>
+    <!-- Define conditions for population Control#2 -->
     <marginals>
       <id>2</id>
-      <description>TAZ Level Control: Number of Households by Persons per Households</description>
-      <geographyType>taz13</geographyType>
-      <controlType>simple</controlType>
-      <table>[popsyn_input].[hh]</table>
+      <description>MGRA Control: Total Population</description>
+      <geographyType>mgra13</geographyType>
+      <controlType>COUNT</controlType>
+      <table>[popsyn_input].[person]</table>
       <constraint id="1">
-        <importance>1000</importance>
-        <field>NP</field>
-        <controlField>hhs1</controlField>
-        <type>equality</type>
-        <value>1</value>
-      </constraint>
-      <constraint id="2">
-        <importance>1000</importance>
-        <field>NP</field>
-        <controlField>hhs2</controlField>
-        <type>equality</type>
-        <value>2</value>
-      </constraint>
-      <constraint id="3">
-        <importance>1000</importance>
-        <field>NP</field>
-        <controlField>hhs3</controlField>
-        <type>equality</type>
-        <value>3</value>
-      </constraint>
-      <constraint id="4">
-        <importance>1000</importance>
-        <field>NP</field>
-        <controlField>hhs4plus</controlField>
+        <importance>1000000000</importance>
+        <field>WGTP</field>
+        <controlField>pop_non_gq</controlField>
         <type>interval</type>
-        <lo_value>4</lo_value>
-        <lo_type>closed</lo_type>
+        <lo_value>0</lo_value>
+        <lo_type>open</lo_type>
         <hi_value>infinity</hi_value>
         <hi_type>open</hi_type>
       </constraint>
@@ -415,7 +393,7 @@
   </target>
   
   <target>
-    <!-- Define conditions for population Control#7 -->
+    <!-- Define conditions for population Control#8 -->
     <marginals>
       <id>8</id>
       <description>Regional META Control: Total Regional Population</description>
@@ -425,7 +403,7 @@
       <constraint id="1">
         <importance>1000</importance>
         <field>WGTP</field>
-        <controlField>pop</controlField>
+        <controlField>pop_non_gq</controlField>
         <type>interval</type>
         <lo_value>0</lo_value>
         <lo_type>open</lo_type>
