@@ -326,9 +326,8 @@ public class PopGenerator implements Serializable
 		else {
 			 
 			for ( int p=0; p < pumaValues.length; p++ ) {
-				
 				int puma = pumaValues[p];
-				
+				logger.info( "allocating TAZs and MAZs for puma "+puma ); 				
 		    	// don't need to allocate if no households
 		    	if ( finalPumaControls[p][totalHouseholdsTazBalancingIncidenceIndex] == 0 )
 		    		continue;
@@ -394,7 +393,9 @@ public class PopGenerator implements Serializable
 				}
 					        
 		        logger.info( "done allocating TAZs and MAZs for puma " + puma );
-
+		        
+		        //Wu added temporarily.  Ideally the code need to be revisited to avoid memory leak.
+		        System.gc();
 			}
 			
 		}
@@ -795,7 +796,7 @@ public class PopGenerator implements Serializable
 
 	    	int m = sortedIndices[0];
 	    	int taz = pumaTazs[m];
-
+	    	
 		    // dimension the returned arrays for the MAZ to the number of final non-zero weights (should be number of total households in MAZ)
 	        returnIntegerWeights[m] = new int[nzInitialWeights.length];
 	        returnPumsRecords[m] = new int[nzInitialWeights.length];
