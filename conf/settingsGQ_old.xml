@@ -6,35 +6,35 @@
     <type>MS_SQL</type>
     <!--<user></user>-->
     <password></password>
-    <dbName>popsyn_3_0</dbName>
+    <dbName>abm_13_2_3_dev </dbName>
   </database>
 
   <!-- Specify the PUMS data table names from which PUMA incidence tables are generated, as well as the field name for a unique identifier and the PUMS weight field name -->
   <pumsData>
-    <idField>hh_id</idField>
+    <idField>hhnum</idField>
     <pumaFieldName>puma</pumaFieldName>
     <metaFieldName>region</metaFieldName>
-    <tazFieldName>taz</tazFieldName>
-    <mazFieldName>mgra</mazFieldName>
-    <weightField>wgtp</weightField>
+    <tazFieldName>taz13</tazFieldName>
+    <mazFieldName>mgra13</mazFieldName>
+    <weightField>WGTP</weightField>
     <hhTable>[popsyn_input].[hh]</hhTable>
     <persTable>[popsyn_input].[person]</persTable>
     <pumsHhTable>[popsyn_input].[hh]</pumsHhTable>
-    <pumsHhIdField>hh_id</pumsHhIdField>
+    <pumsHhIdField>hhnum</pumsHhIdField>
     <pumsPersTable>[popsyn_input].[person]</pumsPersTable>
     <maxExpansionFactor>500</maxExpansionFactor>
     <synpopOutputHhTableName>[popsyn].[synpop_hh]</synpopOutputHhTableName>
     <synpopOutputPersTableName>[popsyn].[synpop_person]</synpopOutputPersTableName>
-    <outputHhAttributes></outputHhAttributes>
-    <outputPersAttributes>person_id</outputPersAttributes>
+    <outputHhAttributes>serialno, np, hincp, ten, bld, nwrkrs_esr, hhincAdj, adjinc, veh, hht, type, npf, hupac, GQFLAG, GQTYPE</outputHhAttributes>
+    <outputPersAttributes>sporder, agep, sex, wkhp, esr, schg, employed, wkw, mil, schl, indp02, indp07, occp02, occp10, GQFLAG, GQTYPE</outputPersAttributes>
   </pumsData>
 
   <!-- Specify the table name and name of id field for the MAZ control totals table -->
   <mazControlsTable>
     <mazTable id="1">
-      <table_name>[popsyn_input].[control_targets_mgra]</table_name>
-      <id_field_name>mgra</id_field_name>
-      <aggregation_level>mgra</aggregation_level>
+      <table_name>[popsyn_input].[control_targets_mgra_sr13]</table_name>
+      <id_field_name>mgra13</id_field_name>
+      <aggregation_level>mgra13</aggregation_level>
     </mazTable>
   </mazControlsTable>
 
@@ -45,7 +45,7 @@
   <!-- Specify the table name, id field name, and aggregation level for each table of META control totals -->
   <metaControlsTables>
     <metaTable id="1">
-      <table_name>[popsyn_input].[control_targets_region]</table_name>
+      <table_name>[popsyn_input].[control_targets_region_sr13]</table_name>
       <id_field_name>region</id_field_name>
       <aggregation_level>puma</aggregation_level>
     </metaTable>
@@ -58,17 +58,14 @@
       <description>MGRA Level Control: Total GQ Population</description>
       <totalHouseholdsControl>true</totalHouseholdsControl>
       <controlType>count</controlType>
-      <geographyType>mgra</geographyType>
+      <geographyType>mgra13</geographyType>
       <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000000000</importance>
-        <field>gq_type_id</field>
+        <field>gqflag</field>
         <controlField>gq_noninst</controlField>
-         <type>interval</type>
-        <lo_value>1</lo_value>
-        <lo_type>closed</lo_type>
-        <hi_value>3</hi_value>
-        <hi_type>closed</hi_type>
+         <type>equality</type>
+        <value>1</value>
       </constraint>
     </marginals>
   </target>
@@ -79,12 +76,12 @@
     <marginals>
       <id>1</id>
       <description>MGRA Control: Number of University GQ population</description>
-      <geographyType>mgra</geographyType>
+      <geographyType>mgra13</geographyType>
       <controlType>count</controlType>
       <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000</importance>
-        <field>gq_type_id</field>
+        <field>gqtype</field>
         <controlField>gq_civ_college</controlField>
         <type>equality</type>
         <value>1</value>
@@ -98,12 +95,12 @@
     <marginals>
       <id>2</id>
       <description>MGRA Control: Number of Military GQ population</description>
-      <geographyType>mgra</geographyType>
+      <geographyType>mgra13</geographyType>
       <controlType>count</controlType>
       <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000</importance>
-        <field>gq_type_id</field>
+        <field>gqtype</field>
         <controlField>gq_mil</controlField>
         <type>equality</type>
         <value>2</value>
@@ -121,13 +118,10 @@
       <table>[popsyn_input].[person]</table>
       <constraint id="1">
         <importance>1000</importance>
-        <field>gq_type_id</field>
+        <field>gqflag</field>
         <controlField>gq_noninst</controlField>
-        <type>interval</type>
-        <lo_value>1</lo_value>
-        <lo_type>closed</lo_type>
-        <hi_value>3</hi_value>
-        <hi_type>closed</hi_type>
+        <type>equality</type>
+        <value>1</value>
       </constraint>
     </marginals>
   </target>
