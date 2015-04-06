@@ -113,21 +113,22 @@ public class ListBalancingSqlHelper implements Serializable
 
         tempQuery = "CREATE INDEX " + idVariable + " ON " + tempHhTable + "(" + idVariable + ")";
         submitExecuteUpdate( tempQuery );
- 	        	                      
+         	        	                      
         // Wu modified, instead of creating a new table, now only insert records to an existing hh table
         String insertQuery = "";
-        if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {    		
-	        insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight], [mgra])";       	        
-		    insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";;
-		    insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
-		        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
+        if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {                                
+                insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [synpop_hh_id], [hh_id], [final_weight], [mgra])";                              
+                            insertQuery += " SELECT "+id+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".hh_id, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";;
+                            insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
+                                                        " ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
         }
-        else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {     	
-        	insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [final_weight], [mgra])";       
-	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";
-	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
-	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
+        else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {                    
+                        insertQuery = "INSERT INTO " + outputHhTableName + " ([popsyn_run_id], [synpop_hh_id], [hh_id], [final_weight], [mgra])";       
+                insertQuery += " SELECT "+id+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".hh_id, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight, "+HOUSEHOLD_IDS_TABLE_NAME + ".maz";
+                insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempHhTable + " " + aliasTableName +
+                                        " ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;
         }
+
         
         submitExecuteUpdate( insertQuery );
         logger.info( "query for creating output synthetic households table = " + insertQuery );
@@ -159,20 +160,20 @@ public class ListBalancingSqlHelper implements Serializable
         String aliasTableName2="t2";
         insertQuery = "";
         if ( dbServer.equalsIgnoreCase( ConnectionHelper.MYSQL_SERVER_NAME ) ) {
-        	insertQuery = "INSERT INTO " + outputPersonTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [sporder], [final_weight])";       
-	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName + ".serialno, "+ aliasTableName + ".sporder, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
-	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempPersonTable + " " + aliasTableName +
-	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable; 
-	        insertQuery +=" LEFT JOIN " + tempHhTable + " " + aliasTableName2 +
-    		" ON " + aliasTableName2 + "." +idVariable+ "=" + aliasTableName + "." + idVariable;
+                        insertQuery = "INSERT INTO " + outputPersonTableName + " ([popsyn_run_id], [synpop_hh_id], [person_id])";       
+                insertQuery += " SELECT "+id+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, person_id";
+                insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempPersonTable + " " + aliasTableName +
+                                        " ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable; 
+                insertQuery +=" LEFT JOIN " + tempHhTable + " " + aliasTableName2 +
+                        " ON " + aliasTableName2 + "." +idVariable+ "=" + aliasTableName + "." + idVariable;
         }
         else if ( dbServer.equalsIgnoreCase( ConnectionHelper.MS_SQL_SERVER_NAME ) ) {
-        	insertQuery = "INSERT INTO " + outputPersonTableName + " ([popsyn_run_id], [popsyn_data_source_id], [temp_id], [serialno], [sporder], [final_weight])";       
-	        insertQuery += " SELECT "+id+","+dataSource+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, " + aliasTableName2 + ".serialno, "+ aliasTableName + ".sporder, "+HOUSEHOLD_IDS_TABLE_NAME + ".finalweight";
-	        insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempPersonTable + " " + aliasTableName +
-	        		" ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;  
-	        insertQuery +=" LEFT JOIN " + tempHhTable + " " + aliasTableName2 +
-    		" ON " + aliasTableName2 + "." +idVariable+ "=" + aliasTableName + "." + idVariable;
+                        insertQuery = "INSERT INTO " + outputPersonTableName + " ([popsyn_run_id], [synpop_hh_id], [person_id])";       
+                insertQuery += " SELECT "+id+","+HOUSEHOLD_IDS_TABLE_NAME + ".tempId, person_id";
+                insertQuery += " FROM " + HOUSEHOLD_IDS_TABLE_NAME +" LEFT JOIN " + tempPersonTable + " " + aliasTableName +
+                                        " ON " + HOUSEHOLD_IDS_TABLE_NAME + ".finalPumsId" + "=" + aliasTableName + "." + idVariable;  
+                insertQuery +=" LEFT JOIN " + tempHhTable + " " + aliasTableName2 +
+                        " ON " + aliasTableName2 + "." +idVariable+ "=" + aliasTableName + "." + idVariable;
         }
         
         submitExecuteUpdate( insertQuery );
@@ -185,9 +186,16 @@ public class ListBalancingSqlHelper implements Serializable
     
     //Wu added to resolve primary key issues in synpop_hh and sypop_person caused be running general pop and GQ as two separate steps
     public void reseedTempId(String tableName, int runId){
-    	String query="SELECT MAX(temp_id)+1 FROM " + tableName + " WHERE [popsyn_run_id]="+runId; 
+    	String query="SELECT MAX(hh_id)+1 FROM " + tableName + " WHERE [popsyn_run_id]="+runId; 
     	int maxTempId=getIdentity(query);
         String reseedQuery="DBCC CHECKIDENT ('popsyn_staging.hhids_"+runId+"',RESEED, "+maxTempId+")";
+        System.out.println("reseed query="+reseedQuery);
+        	submitExecuteUpdate( reseedQuery );
+    }  
+    
+    //Wu addeed, reseed person table for each run
+    public void reseedPersonTable(String tableName){
+        String reseedQuery="DBCC CHECKIDENT ('"+tableName+"',RESEED, 0)";
         System.out.println("reseed query="+reseedQuery);
         	submitExecuteUpdate( reseedQuery );
     }  
@@ -269,7 +277,8 @@ public class ListBalancingSqlHelper implements Serializable
                 createQuery += ( ", " + constraint.getField() + " FLOAT" ); 
                 insertQuery += ( constraint.getField() + ") SELECT " + idVariable + ", "
                         + constraint.getField() + " FROM " + ((Marginal)constraint.getParentObject()).getTable()
-                        + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma +" AND GQFLAG="+gqflag); 
+                        + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma 
+                        +" AND ([gq_type_id] = CASE WHEN " + gqflag + " = 0 THEN 0 ELSE NULL END OR [gq_type_id] > CASE WHEN " + gqflag + " = 1 THEN 0 ELSE NULL END)"); 
             }
             
             createQuery += ( ", " + constraint.getField() + constraint.getId() + " FLOAT" ); 
@@ -325,7 +334,8 @@ public class ListBalancingSqlHelper implements Serializable
                 createQuery += ( ", " + constraint.getField() + " FLOAT" ); 
                 insertQuery += ( constraint.getField() + ") SELECT " + idVariable + ", "
                     + constraint.getField() + " FROM " + ((Marginal)constraint.getParentObject()).getTable()
-                    + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma+ " AND GQFLAG="+gqflag); 
+                    + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma
+                    + " AND ([gq_type_id] = CASE WHEN " + gqflag + " = 0 THEN 0 ELSE NULL END OR [gq_type_id] > CASE WHEN " + gqflag + " = 1 THEN 0 ELSE NULL END)"); 
             }
             
             createQuery += ( ", " + constraint.getField() + constraint.getId() + " FLOAT" ); 
@@ -452,9 +462,11 @@ public class ListBalancingSqlHelper implements Serializable
     public int[] submitGetIdsQuery( String idFieldName, String tableName, int puma, int gqflag ) {
 
         // define the query to get the weight column.
-        String query = "SELECT " + idFieldName + " FROM " + tableName
-                + " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma+" AND gqflag=" + gqflag + " ORDER BY " + idFieldName; 
-     
+    	String query = "SELECT " + idFieldName + " FROM " + tableName
+    			+ " WHERE " + INPUT_PUMS_HHTABLE_PUMA_NAME + "=" + puma 
+    			+ " AND ([gq_type_id] = CASE WHEN " + gqflag + " = 0 THEN 0 ELSE NULL END OR [gq_type_id] > CASE WHEN " + gqflag + " = 1 THEN 0 ELSE NULL END) ORDER BY " 
+    			+ idFieldName;
+    
         String hhtype;
         if(gqflag==0){
         	hhtype="hhids";
