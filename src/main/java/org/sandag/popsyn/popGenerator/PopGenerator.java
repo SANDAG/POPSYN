@@ -408,7 +408,9 @@ public class PopGenerator implements Serializable
 		String synpopPersOutputTableName = pumsData.getSynpopOutputPersTableName();
 		String[] pumsHhAttributesList = pumsData.getOutputHhAttributes();
 		String[] pumsPersAttributesList = pumsData.getOutputPersAttributes();
-		
+				
+	    //reseed synpop person table
+	    if(gqflag==0) sqlHelper.reseedPersonTable(synpopPersOutputTableName);
 	    sqlHelper.createSyntheticPopulationTables( pumsRecordIdFieldName, synpopHhOutputTableName, pumsHhAttributesTableName, pumsHhAttributesList, synpopPersOutputTableName, pumsPersAttributesTableName, pumsPersAttributesList, id, pr.getDataSource(), gqflag);
 	    sqlHelper.dropStagingTables(TEMP_INCIDENCE_TABLE_NAME+id);
 	    sqlHelper.dropStagingTables(TEMP_HHIDS_TABLE_NAME+id);
