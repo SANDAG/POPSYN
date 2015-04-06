@@ -1,0 +1,29 @@
+@echo off
+
+set db_server=
+set db_name=
+set log_path=
+set db_path=
+set script_path=
+
+echo creating %db_name% on %db_server%, data on %db_path%, log on %log_path% from scripts at %script_path%
+sqlcmd -S %db_server% -i %script_path%popsyn_database.sql -E -C -v db_name=%db_name% db_path="%db_path%" log_path="%log_path%"
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo creating popsyn tables
+sqlcmd -S %db_server% -d %db_name% -i %script_path%popsyn_tables.sql -E -C
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo creating db_meta objects
+sqlcmd -S %db_server% -d %db_name% -i %script_path%db_meta.sql -E -C
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo creating popsyn data dictionary
+sqlcmd -S %db_server% -d %db_name% -i %script_path%popsyn_dd.sql -E -C
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo creating popsyn views programmability objects
+sqlcmd -S %db_server% -d %db_name% -i %script_path%popsyn_prgm.sql -E -C
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo successfully created %db_name% on %db_server%, data on %db_path%, log on %log_path% from scripts at %script_path%
