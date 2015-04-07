@@ -1163,6 +1163,292 @@ GO
 
 
 
+-- Create [popsyn].[households_file] to output households input file for the ABM model
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[popsyn].[households_file]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [popsyn].[households_file]
+GO
+
+
+CREATE FUNCTION
+	[popsyn].[households_file]
+(
+	@popsyn_run_id smallint
+)
+RETURNS @ret_households_file TABLE
+(
+	[hhid] [int] IDENTITY (1,1) NOT NULL,
+	[household_serial_no] [bigint] NOT NULL,
+	[taz] [int] NOT NULL,
+	[mgra] [int] NOT NULL,
+	[hinccat1] [tinyint] NOT NULL,
+	[hinc] [int] NOT NULL,
+	[hworkers] [tinyint] NOT NULL,
+	[veh] [tinyint] NOT NULL,
+	[persons] [tinyint] NOT NULL,
+	[hht] [smallint] NOT NULL,
+	[bldgsz] [smallint] NOT NULL,
+	[unittype] [tinyint] NOT NULL,
+	[popsyn_run_id] [tinyint] NOT NULL,
+	[poverty] [decimal](7,4) NULL,
+	[n] [int] NOT NULL, -- just used to create persons file, do not include when outputting csv
+	[final_weight] [int] NOT NULL, -- just used to create persons file, do not include when outputting csv
+	[synpop_hh_id] [int] NOT NULL -- just used to create persons file, do not include when outputting csv
+)
+AS
+BEGIN
+
+DECLARE @minor_geography_type_id smallint = (SELECT [minor_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id]  WHERE [popsyn_run_id] = @popsyn_run_id)
+DECLARE @middle_geography_type_id smallint = (SELECT [middle_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id]  WHERE [popsyn_run_id] = @popsyn_run_id);
+
+WITH -- used to expand households based on weight in later join
+	N1 AS (SELECT N1.[n] FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) AS N1 ([n])), -- a table of 10 1's with the column name of n
+	N2 AS (SELECT L.[n] FROM N1 AS L CROSS JOIN N1 AS R), -- a table of 100 1's with the column name of n
+	N3 AS (SELECT L.[n] FROM N2 AS L CROSS JOIN N2 AS R), -- a table of 10000 1's with the column name of n
+	N AS (SELECT ROW_NUMBER() OVER (ORDER BY @@SPID) AS [n] FROM N3) -- a table going from 1-100,000,000 sequentially
+INSERT INTO @ret_households_file
+SELECT
+	[serialno] AS [household_serial_no]
+	,[parent_zone] AS [taz]
+	,[child_zone] AS [mgra]
+	,[hinccat1] = CASE	WHEN [hh_income_adj] < 30000 THEN 1
+						WHEN [hh_income_adj] >= 30000 AND [hh_income_adj] < 60000 THEN 2
+						WHEN [hh_income_adj] >= 60000 AND [hh_income_adj] < 100000 THEN 3
+						WHEN [hh_income_adj] >= 100000 AND [hh_income_adj] < 150000 THEN 4
+						WHEN [hh_income_adj] >= 150000 THEN 5
+						ELSE 1 -- set gq to 1 was how it was done traditionally, should probably be set to some null value but need to asses impact on model and reporting
+						END
+	,ROUND(ISNULL([hh_income_adj], 0),0) AS [hinc] -- group quarters are 0, see above note
+	,[workers]
+	,[veh]
+	,[np] AS [persons]
+	,[hht]
+	,[bld]
+	,[unittype] = CASE	WHEN [gq_type_id] = 0  THEN 0 -- households
+						WHEN [gq_type_id] BETWEEN 1 AND 3 THEN 1 -- institutional group quarters
+						ELSE NULL
+						END -- we do not have any institutional group quarters
+	,@popsyn_run_id AS [popsyn_run_id]
+	,[poverty] = CASE	WHEN [gq_type_id] BETWEEN 1 AND 3 THEN -99 -- no income calculations for group quarters, set to this since abm model can't handle nulls
+						WHEN [gq_type_id] = 0 THEN ROUND(1.0 * [hh_income_adj] /[income_threshold], 4)
+						ELSE NULL
+						END -- not actually used in model just for reporting purposes
+	,[n]
+	,[final_weight]
+	,[synpop_hh_id]
+FROM
+	[popsyn].[synpop_hh]
+INNER JOIN
+	[data_cafe].[ref].[get_geography_xref](@minor_geography_type_id, @middle_geography_type_id)
+ON
+	[synpop_hh].[mgra] = [get_geography_xref].[child_zone]
+INNER JOIN
+	[ref].[popsyn_run]
+ON
+	[synpop_hh].[popsyn_run_id] = [popsyn_run].[popsyn_run_id]
+INNER JOIN -- need base acs hh data
+	[popsyn_input].[hh]
+ON
+	[popsyn_run].[popsyn_data_source_id] = [hh].[popsyn_data_source_id]
+	AND [synpop_hh].[hh_id] = [hh].[hh_id]
+LEFT OUTER JOIN ( -- need base acs number of seniors in the household
+	SELECT
+		[popsyn_data_source_id]
+		,[hh_id]
+		,COUNT(*) AS [hh_age65plus]
+	FROM
+		[popsyn_input].[person]
+	WHERE
+		[AGEP] >= 65
+	GROUP BY
+		[popsyn_data_source_id]
+		,[hh_id]
+	) AS num_seniors
+ON
+	[popsyn_run].[popsyn_data_source_id] = num_seniors.[popsyn_data_source_id]
+	AND [synpop_hh].[hh_id] = num_seniors.[hh_id]
+INNER JOIN -- poverty calculation
+	[ref].[fed_poverty_threshold_2010]
+ON
+	CASE	WHEN [hh].[np] > 9 THEN 9 
+			ELSE [hh].[np] 
+			END							= [fed_poverty_threshold_2010].[hh_persons]
+	AND CASE	WHEN [hh].[hh_child] IS NULL THEN 0
+				WHEN [hh].[hh_child] > 8 THEN 8 
+				WHEN [hh].[np] = [hh].[hh_child] THEN [hh].[hh_child] - 1 -- all child households treated as one adult, rest children
+				ELSE [hh].[hh_child] 
+				END						= [fed_poverty_threshold_2010].[hh_children]
+	AND CASE	WHEN num_seniors.[hh_age65plus] = 2 AND [hh].[NP] = 2 THEN 1
+				WHEN (num_seniors.[hh_age65plus] > 0 AND [hh].[NP] > 2) OR num_seniors.[hh_age65plus] IS NULL THEN 0 -- quirk of how poverty is defined, doesn't care about seniors in 3+ person households
+				ELSE num_seniors.[hh_age65plus]  
+				END						= [fed_poverty_threshold_2010].[hh_age65plus]
+INNER JOIN ( -- expand households based on weight
+	SELECT
+		[n]
+	FROM 
+		[N]
+	) AS [numbers]
+ON
+	[numbers].[n] BETWEEN 1 AND [synpop_hh].[final_weight]
+WHERE
+	[synpop_hh].[popsyn_run_id] = @popsyn_run_id
+
+RETURN
+END
+GO
+
+
+-- Add metadata for [popsyn].[households_file]
+EXECUTE [db_meta].[add_xp] 'popsyn.households_file', 'subsystem', 'popsyn'
+EXECUTE [db_meta].[add_xp] 'popsyn.households_file', 'ms_description', 'function to output households input file for ABM'
+GO
+
+
+
+
+-- Create [popsyn].[persons_file] to output persons input file for the ABM model
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[popsyn].[persons_file]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION popsyn.[persons_file]
+GO
+
+
+CREATE FUNCTION
+	[popsyn].[persons_file]
+(
+	@popsyn_run_id smallint
+)
+RETURNS @ret_persons_file TABLE
+(
+	[hhid] [int] NOT NULL,
+	[perid] [int] IDENTITY(1,1) NOT NULL,
+	[household_serial_no] [bigint] NOT NULL,
+	[pnum] [tinyint] NOT NULL,
+	[age] [tinyint] NOT NULL,
+	[sex] [tinyint] NOT NULL,
+	[military] [tinyint] NOT NULL,
+	[pemploy] [tinyint] NOT NULL,
+	[pstudent] [tinyint] NOT NULL,
+	[ptype] [tinyint] NOT NULL,
+	[educ] [tinyint] NOT NULL,
+	[grade] [tinyint] NOT NULL,
+	[occen5] [smallint] NOT NULL,
+	[occsoc5] [nvarchar](15) NOT NULL,
+	[indcen] [smallint] NOT NULL,
+	[weeks] [tinyint] NOT NULL,
+	[hours] [tinyint] NOT NULL,
+	[rac1p] [tinyint] NOT NULL,
+	[hisp] [tinyint] NOT NULL,
+	[popsyn_run_id] [smallint] NOT NULL
+)
+AS
+BEGIN
+
+WITH -- used to expand households based on weight in later join
+	N1 AS (SELECT N1.[n] FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) AS N1 ([n])), -- a table of 10 1's with the column name of n
+	N2 AS (SELECT L.[n] FROM N1 AS L CROSS JOIN N1 AS R), -- a table of 100 1's with the column name of n
+	N3 AS (SELECT L.[n] FROM N2 AS L CROSS JOIN N2 AS R), -- a table of 10000 1's with the column name of n
+	N AS (SELECT ROW_NUMBER() OVER (ORDER BY @@SPID) AS [n] FROM N3) -- a table going from 1-100,000,000 sequentially
+INSERT INTO @ret_persons_file
+SELECT
+	[hhid]
+	,[serialno] AS [household_serial_no]
+	,[sporder] AS [pnum]
+	,[agep] AS [age]
+	,[sex] AS [sex]
+	,[military] = CASE	WHEN [mil] = 1 THEN 1
+						WHEN [mil] IN (2,3) THEN 2
+						WHEN [mil] = 4 THEN 3
+						WHEN [mil] = 5 THEN 4
+						ELSE 0
+						END
+	,[pemploy] = CASE	WHEN [esr] IN (1,2,4,5) AND [wkw] IN (1,2,3,4) AND [wkhp] >= 35 THEN 1
+							WHEN [esr] IN (1,2,4,5) AND ([wkw] IN (5,6) OR [wkhp] < 35) THEN 2
+							WHEN [esr] IN (3,6) THEN 3
+							ELSE 4
+							END
+	,[pstudent] = CASE	WHEN [schg] > 0 AND [schg] < 6 THEN 1
+							WHEN [schg] IN (6,7) THEN 2
+							ELSE 3
+							END
+	-- order of ptype case statement matters
+	,[ptype] = CASE	WHEN [agep] < 6 THEN 8
+						WHEN [agep] >= 6 AND [agep] <= 15 THEN 7
+						WHEN [esr] IN (1,2,4,5) AND [wkw] IN (1,2,3,4) AND [wkhp] >= 35 THEN 1 -- PEMPLOY = 1
+						WHEN [schg] IN (6,7) OR ([agep]>=20 AND [schg] > 0 AND [schg] < 6) THEN 3 -- PSTUDENT = 2 OR AGEP >= 20 AND PSTUDENT = 1
+						WHEN [schg] > 0 AND [schg] < 6 THEN 6 -- PSTUDENT = 1
+						WHEN [esr] IN (1,2,4,5) AND ([wkw] IN (5,6) OR [wkhp] < 35) THEN 2 -- PEMPLOY = 2
+						WHEN [agep] < 65 THEN 4
+						ELSE 5
+						END
+	,[schl] AS [educ]
+	,[schg] AS [grade]
+	,[occen5] = CASE	WHEN [occp02] = 'N.A.' THEN [occp10]
+						WHEN [occp02] = 'N.A.//' THEN [occp10]
+						WHEN LEN([occp02]) = 0 OR LEN([occp10]) = 0 THEN 0 
+						ELSE [occp02]
+						END
+	,[occsoc5] = CASE	WHEN [socp00] = 'N.A.' THEN LEFT([socp10], 2) + '-' + RIGHT([socp10], 4)
+						WHEN [socp00] = 'N.A.//' THEN LEFT([socp10], 2) + '-' + RIGHT([socp10], 4)
+						WHEN LEN([socp00]) = 6 THEN LEFT([socp00], 2) + '-' + RIGHT([socp00], 4)
+						WHEN LEN([socp00]) =  0 OR LEN([socp10]) = 0 THEN '00-0000'
+						ELSE [socp00]
+						END
+	,[indcen] = CASE	WHEN [indp02] = 'N.A.' THEN [indp07]
+						WHEN [indp02] = 'N.A.//' THEN [indp07]
+						WHEN [indp02] = 'N.A.' AND [indp07] = '6672' THEN '6675'
+						WHEN len([indp02]) = 0 THEN 0
+						WHEN len([indp07]) = 0 THEN 0            
+						ELSE [indp02]
+						END
+	,[wkw] AS [weeks]
+	,[wkhp] AS [hours]
+	,[rac1p]
+	,[hisp]
+	,@popsyn_run_id AS [popsyn_run_id]
+FROM
+	[popsyn].[synpop_person]
+INNER JOIN
+	[popsyn].[synpop_hh]
+ON
+	[synpop_person].[popsyn_run_id] = [synpop_hh].[popsyn_run_id]
+	AND [synpop_person].[synpop_hh_id] = [synpop_hh].[synpop_hh_id]
+INNER JOIN
+	[ref].[popsyn_run]
+ON
+	[synpop_person].[popsyn_run_id] = [popsyn_run].[popsyn_run_id]
+INNER JOIN
+	[popsyn_input].[person]
+ON
+	[popsyn_run].[popsyn_data_source_id] = [person].[popsyn_data_source_id]
+	AND [synpop_person].[person_id] = [person].[person_id]
+INNER JOIN ( -- expand households based on weight
+	SELECT
+		[n]
+	FROM 
+		n
+	) AS numbers
+ON
+	numbers.[n] BETWEEN 1 AND [synpop_hh].[final_weight]
+INNER JOIN
+	[popsyn].[households_file](@popsyn_run_id)
+ON
+	[synpop_person].[synpop_hh_id] = [households_file].[synpop_hh_id]
+	AND [numbers].[n] = [households_file].[n]
+WHERE
+	[synpop_person].[popsyn_run_id] = @popsyn_run_id
+
+RETURN
+END
+GO
+
+
+-- Add metadata for [popsyn].[persons_file]
+EXECUTE [db_meta].[add_xp] 'popsyn.persons_file', 'subsystem', 'popsyn'
+EXECUTE [db_meta].[add_xp] 'popsyn.persons_file', 'ms_description', 'function to output persons input file for ABM'
+GO
+
+
+
+
 -- Create [popsyn].[synpop_target_category_results] to output the synthetic population's results by target category and geography
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[popsyn].[synpop_target_category_results]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [popsyn].[synpop_target_category_results]
