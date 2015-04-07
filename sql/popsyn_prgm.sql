@@ -594,9 +594,12 @@ SELECT
 	,[pums_hh_sd].[SERIALNO]
 	,[NP]
 	,NULL AS [hh_income_adj] -- no income for gq households
+	,[BLD]
 	,CASE	WHEN [nwrkrs_esr] IS NULL THEN 0
 			ELSE [nwrkrs_esr]
 			END AS [workers]
+	,[VEH]
+	,[HHT]
 	,CASE	WHEN [SCHG] IN (6,7) THEN 1
 			WHEN [MIL] = 1 THEN 2
 			ELSE 3
