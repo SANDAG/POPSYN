@@ -187,6 +187,7 @@ BEGIN
 	RETURN
 END
 
+DBCC CHECKIDENT ('popsyn_input.control_targets',RESEED, 0)
 -- Insert mgra targets
 INSERT INTO [popsyn_input].[control_targets]
 SELECT
