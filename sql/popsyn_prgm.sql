@@ -445,10 +445,13 @@ SELECT
 			WHEN [ADJINC]=1039407 THEN CAST((([HINCP]/1.0)*1.007624*1.00000) AS decimal(9,2))
 			WHEN [ADJINC]=1018237 THEN CAST((([HINCP]/1.0)*1.018237*0.96942) AS decimal(9,2))
 			ELSE 999
-			END AS hh_income_adj -- adjusted to 2010 dollars
+			END AS [hh_income_adj] -- adjusted to 2010 dollars
+	,[BLD]
 	,CASE	WHEN [nwrkrs_esr] IS NULL THEN 0
 			ELSE [nwrkrs_esr]
 			END
+	,[VEH]
+	,[HHT]
 	,0 AS [gq_type_id] -- Household
 	,CASE	WHEN [BLD] IN (2,3) THEN '1'				-- Single-family
 			WHEN [BLD] IN (4,5,6,7,8,9) THEN '2'		-- Multi-family
