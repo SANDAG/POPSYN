@@ -43,6 +43,33 @@ END
 SET NOCOUNT ON;
 
 
+-- expansion_numbers
+IF OBJECT_ID('ref.expansion_numbers','U') IS NULL
+BEGIN
+
+CREATE TABLE 
+	[ref].[expansion_numbers] (
+		[n] [int] NOT NULL,
+		CONSTRAINT [pk_expansionnumbers] PRIMARY KEY CLUSTERED ([n]),
+	) 
+WITH 
+	(DATA_COMPRESSION = PAGE);
+
+WITH -- used to expand households based on weight in later join
+	N1 AS (SELECT N1.[n] FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) AS N1 ([n])), -- a table of 10 1's with the column name of n
+	N2 AS (SELECT L.[n] FROM N1 AS L CROSS JOIN N1 AS R), -- a table of 100 1's with the column name of n
+	N3 AS (SELECT L.[n] FROM N2 AS L CROSS JOIN N2 AS R), -- a table of 10,000 1's with the column name of n
+	N4 AS (SELECT L.[n] FROM N3 AS L CROSS JOIN N2 AS R), -- a table of 1,000,000 1's with the column name of n
+	N AS (SELECT ROW_NUMBER() OVER (ORDER BY @@SPID) AS [n] FROM N4) -- a table going from 1-1,000,000 sequentially
+INSERT INTO
+	[ref].[expansion_numbers]
+SELECT
+	[n]
+FROM 
+	[N]
+END
+
+
 -- lu_version
 IF OBJECT_ID('ref.lu_version','U') IS NULL
 BEGIN

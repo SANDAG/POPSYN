@@ -1290,11 +1290,6 @@ BEGIN
 DECLARE @minor_geography_type_id smallint = (SELECT [minor_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id]  WHERE [popsyn_run_id] = @popsyn_run_id)
 DECLARE @middle_geography_type_id smallint = (SELECT [middle_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id]  WHERE [popsyn_run_id] = @popsyn_run_id);
 
-WITH -- used to expand households based on weight in later join
-	N1 AS (SELECT N1.[n] FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) AS N1 ([n])), -- a table of 10 1's with the column name of n
-	N2 AS (SELECT L.[n] FROM N1 AS L CROSS JOIN N1 AS R), -- a table of 100 1's with the column name of n
-	N3 AS (SELECT L.[n] FROM N2 AS L CROSS JOIN N2 AS R), -- a table of 10000 1's with the column name of n
-	N AS (SELECT ROW_NUMBER() OVER (ORDER BY @@SPID) AS [n] FROM N3) -- a table going from 1-100,000,000 sequentially
 INSERT INTO @ret_households_file
 SELECT
 	[serialno] AS [household_serial_no]
@@ -1389,14 +1384,10 @@ ON
 				WHEN (num_seniors.[hh_age65plus] > 0 AND [hh].[NP] > 2) OR num_seniors.[hh_age65plus] IS NULL THEN 0 -- quirk of how poverty is defined, doesn't care about seniors in 3+ person households
 				ELSE num_seniors.[hh_age65plus]  
 				END						= [fed_poverty_threshold_2010].[hh_age65plus]
-INNER JOIN ( -- expand households based on weight
-	SELECT
-		[n]
-	FROM 
-		[N]
-	) AS [numbers]
+INNER JOIN
+	[ref].[expansion_numbers] -- expand households based on weight
 ON
-	[numbers].[n] BETWEEN 1 AND [synpop_hh].[final_weight]
+	[expansion_numbers].[n] BETWEEN 1 AND [synpop_hh].[final_weight]
 WHERE
 	[synpop_hh].[popsyn_run_id] = @popsyn_run_id
 
@@ -1450,11 +1441,6 @@ RETURNS @ret_persons_file TABLE
 AS
 BEGIN
 
-WITH -- used to expand households based on weight in later join
-	N1 AS (SELECT N1.[n] FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) AS N1 ([n])), -- a table of 10 1's with the column name of n
-	N2 AS (SELECT L.[n] FROM N1 AS L CROSS JOIN N1 AS R), -- a table of 100 1's with the column name of n
-	N3 AS (SELECT L.[n] FROM N2 AS L CROSS JOIN N2 AS R), -- a table of 10000 1's with the column name of n
-	N AS (SELECT ROW_NUMBER() OVER (ORDER BY @@SPID) AS [n] FROM N3) -- a table going from 1-100,000,000 sequentially
 INSERT INTO @ret_persons_file
 SELECT
 	[hhid]
@@ -1528,19 +1514,15 @@ INNER JOIN
 ON
 	[popsyn_run].[popsyn_data_source_id] = [person].[popsyn_data_source_id]
 	AND [synpop_person].[person_id] = [person].[person_id]
-INNER JOIN ( -- expand households based on weight
-	SELECT
-		[n]
-	FROM 
-		n
-	) AS numbers
+INNER JOIN
+	[ref].[expansion_numbers] -- expand households based on weight
 ON
-	numbers.[n] BETWEEN 1 AND [synpop_hh].[final_weight]
+	[expansion_numbers].[n] BETWEEN 1 AND [synpop_hh].[final_weight]
 INNER JOIN
 	[popsyn].[households_file](@popsyn_run_id)
 ON
 	[synpop_person].[synpop_hh_id] = [households_file].[synpop_hh_id]
-	AND [numbers].[n] = [households_file].[n]
+	AND [expansion_numbers].[n] = [households_file].[n]
 WHERE
 	[synpop_person].[popsyn_run_id] = @popsyn_run_id
 
