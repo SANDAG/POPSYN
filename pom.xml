@@ -11,6 +11,8 @@
         <output.path>${project.build.directory}/${project.name}/${project.version}</output.path>
         <study.root>${project.build.directory}/${project.name}</study.root>
         <jppf.version>3.3.2</jppf.version>
+		<JAVA_64_PATH>c:\progra~1\java\jdk1.7.0_25</JAVA_64_PATH>
+		<JAVA_32_PATH>C:\Progra~2\Java\jre7</JAVA_32_PATH>
     </properties>
     <build>
         <plugins>
