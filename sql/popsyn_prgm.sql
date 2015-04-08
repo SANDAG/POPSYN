@@ -770,6 +770,37 @@ AS
 DECLARE @minor_geography_type_id smallint = (SELECT [minor_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id] WHERE [popsyn_run_id] = @popsyn_run_id)
 DECLARE @mid_geography_type_id smallint = (SELECT [middle_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id] WHERE [popsyn_run_id] = @popsyn_run_id)
 
+
+UPDATE [ref].[popsyn_run] SET [validated] = NULL WHERE [popsyn_run_id] = @popsyn_run_id 
+
+
+IF((SELECT MAX([final_weight]) FROM [popsyn].[synpop_hh] WHERE [popsyn_run_id] = @popsyn_run_id) > 500)
+	PRINT 'A large household weight (>500) was assigned by popsyn, targets and acs pums in large disagreement proceed with caution.'
+
+
+IF((SELECT MAX([final_weight]) FROM [popsyn].[synpop_hh] WHERE [popsyn_run_id] = @popsyn_run_id) > (SELECT MAX([n]) FROM [ref].[expansion_numbers]))
+BEGIN
+	UPDATE [ref].[popsyn_run] SET [validated] = 'A household weight exceeds maximum n in ref.expansion_numbers, add to this table before using ouput.' WHERE [popsyn_run_id] = @popsyn_run_id
+	PRINT 'A household weight assigned by popsyn exceeds largest value in ref.expansion_numbers table, add to this table before using output.'
+END
+
+
+CREATE TABLE
+	#temp_results
+(
+	[popsyn_run_id] smallint NOT NULL
+	,[target_category_col_nm] nvarchar(50) NOT NULL
+	,[balancing_geography] nvarchar(50) NOT NULL
+	,[n] int NOT NULL
+	,[observed_region_total] int NOT NULL
+	,[target_region_total] int NOT NULL
+	,[diff_total] int NOT NULL
+	,[diff_mean] decimal(14,4) NOT NULL
+	,[diff_stdev] decimal(14,4) NOT NULL
+	,[diff_max] int NOT NULL
+	,[pct_diff_total] decimal(7,4) NOT NULL
+)
+INSERT INTO #temp_results
 -- mgra targets
 SELECT
 	@popsyn_run_id AS [popsyn_run_id]
@@ -779,10 +810,10 @@ SELECT
 	,SUM(results_mgra.[value]) AS [observed_region_total]
 	,SUM([control_targets].[value]) AS [target_region_total]
 	,SUM(results_mgra.[value] - [control_targets].[value]) AS [diff_total]
-	,AVG(results_mgra.[value] - [control_targets].[value]) AS [diff_mean]
+	,ROUND(AVG(1.0 * results_mgra.[value] - [control_targets].[value]), 4) AS [diff_mean]
 	,STDEV(results_mgra.[value] - [control_targets].[value]) AS [diff_stdev]
 	,MAX(results_mgra.[value] - [control_targets].[value]) AS [diff_max]
-	,ISNULL(1.0 * SUM(results_mgra.[value] - [control_targets].[value]) / NULLIF(SUM([control_targets].[value]), 0), 0) * 100 AS [pct_diff_total]
+	,ROUND(ISNULL(1.0 * SUM(results_mgra.[value] - [control_targets].[value]) / NULLIF(SUM([control_targets].[value]), 0), 0) * 100, 4) AS [pct_diff_total]
 FROM 
 	[popsyn_input].[control_targets]
 INNER JOIN
@@ -812,7 +843,7 @@ SELECT
 	,SUM(results_taz.[value]) AS [observed_region_total]
 	,SUM([control_targets].[value]) AS [target_region_total]
 	,SUM(results_taz.[value] - [control_targets].[value]) AS [diff_total]
-	,AVG(results_taz.[value] - [control_targets].[value]) AS [diff_mean]
+	,AVG(1.0 * results_taz.[value] - [control_targets].[value]) AS [diff_mean]
 	,STDEV(results_taz.[value] - [control_targets].[value]) AS [diff_stdev]
 	,MAX(results_taz.[value] - [control_targets].[value]) AS [diff_max]
 	,ISNULL(1.0 * SUM(results_taz.[value] - [control_targets].[value]) / NULLIF(SUM([control_targets].[value]), 0), 0) * 100 AS [pct_diff_total]
@@ -833,6 +864,23 @@ WHERE
 GROUP BY
 	[control_targets].[lu_version_id]
 	,[target_category_col_nm]
+
+
+IF((SELECT MAX([pct_diff_total]) FROM #temp_results WHERE [target_category_col_nm] IN ('Households', 'Non Institutional Group Quarters - Total', 'pop_non_gq')) >= 1)
+BEGIN
+	UPDATE [ref].[popsyn_run] SET [validated] = 'Households, gq, or non-gq population difference from target exceeds 1% regionally.' WHERE [popsyn_run_id] = @popsyn_run_id
+	PRINT 'Households, gq, or non-gq population difference from target exceeds 1% regionally.'
+END
+
+
+IF((SELECT [validated] FROM [ref].[popsyn_run] WHERE [popsyn_run_id] = @popsyn_run_id) IS NULL)
+UPDATE [ref].[popsyn_run] SET [validated] = 'valid' WHERE [popsyn_run_id] = @popsyn_run_id
+
+
+SELECT 
+	*
+FROM 
+	#temp_results
 GO
 
 
@@ -908,16 +956,70 @@ FROM (
 		,[value]
 	FROM 
 		[popsyn_input].[control_targets]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@minor_geography_type_id, @mid_geography_type_id) AS [minor_mid_xref]
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @minor_geography_type_id
+			AND [parent_zone].[geography_type_id] = @mid_geography_type_id
+		) AS [minor_mid_xref]
 	ON
 		[control_targets].[geography_zone_id] = [minor_mid_xref].[child_geography_zone_id]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@mid_geography_type_id, 69) AS [mid_puma_xref] -- hardcoded puma_00 geography_type_id
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @mid_geography_type_id
+			AND [parent_zone].[geography_type_id] = 69 -- hardcoded puma_00 geography_type_id
+		) AS [mid_puma_xref]
 	ON
 		[minor_mid_xref].[parent_geography_zone_id] = [mid_puma_xref].[child_geography_zone_id]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@mid_geography_type_id, 4) AS [mid_region_xref] -- hardcoded region_08 geography_type_id
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @mid_geography_type_id
+			AND [parent_zone].[geography_type_id] = 4 -- hardcoded region_08 geography_type_id
+		) AS [mid_region_xref]
 	ON
 		[minor_mid_xref].[parent_geography_zone_id] = [mid_region_xref].[child_geography_zone_id]
 	INNER JOIN
@@ -1044,12 +1146,48 @@ FROM (
 		,[value]
 	FROM 
 		[popsyn_input].[control_targets]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@mid_geography_type_id, 69) AS [mid_puma_xref] -- hardcoded puma_00 geography_type_id
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @mid_geography_type_id
+			AND [parent_zone].[geography_type_id] = 69 -- hardcoded puma_00 geography_type_id
+		) AS [mid_puma_xref]
 	ON
 		[control_targets].[geography_zone_id] = [mid_puma_xref].[child_geography_zone_id]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@mid_geography_type_id, 4) AS [mid_region_xref] -- hardcoded region_08 geography_type_id
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @mid_geography_type_id
+			AND [parent_zone].[geography_type_id] = 4 -- hardcoded region_08 geography_type_id
+		) AS [mid_region_xref]
 	ON
 		[control_targets].[geography_zone_id] = [mid_region_xref].[child_geography_zone_id]
 	INNER JOIN
@@ -1200,11 +1338,6 @@ BEGIN
 DECLARE @minor_geography_type_id smallint = (SELECT [minor_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id]  WHERE [popsyn_run_id] = @popsyn_run_id)
 DECLARE @middle_geography_type_id smallint = (SELECT [middle_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id]  WHERE [popsyn_run_id] = @popsyn_run_id);
 
-WITH -- used to expand households based on weight in later join
-	N1 AS (SELECT N1.[n] FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) AS N1 ([n])), -- a table of 10 1's with the column name of n
-	N2 AS (SELECT L.[n] FROM N1 AS L CROSS JOIN N1 AS R), -- a table of 100 1's with the column name of n
-	N3 AS (SELECT L.[n] FROM N2 AS L CROSS JOIN N2 AS R), -- a table of 10000 1's with the column name of n
-	N AS (SELECT ROW_NUMBER() OVER (ORDER BY @@SPID) AS [n] FROM N3) -- a table going from 1-100,000,000 sequentially
 INSERT INTO @ret_households_file
 SELECT
 	[serialno] AS [household_serial_no]
@@ -1237,10 +1370,28 @@ SELECT
 	,[synpop_hh_id]
 FROM
 	[popsyn].[synpop_hh]
-INNER JOIN
-	[data_cafe].[ref].[get_geography_xref](@minor_geography_type_id, @middle_geography_type_id)
+INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @minor_geography_type_id
+			AND [parent_zone].[geography_type_id] = @middle_geography_type_id
+	) AS [minor_mid_xref]
 ON
-	[synpop_hh].[mgra] = [get_geography_xref].[child_zone]
+	[synpop_hh].[mgra] = [minor_mid_xref].[child_zone]
 INNER JOIN
 	[ref].[popsyn_run]
 ON
@@ -1281,14 +1432,10 @@ ON
 				WHEN (num_seniors.[hh_age65plus] > 0 AND [hh].[NP] > 2) OR num_seniors.[hh_age65plus] IS NULL THEN 0 -- quirk of how poverty is defined, doesn't care about seniors in 3+ person households
 				ELSE num_seniors.[hh_age65plus]  
 				END						= [fed_poverty_threshold_2010].[hh_age65plus]
-INNER JOIN ( -- expand households based on weight
-	SELECT
-		[n]
-	FROM 
-		[N]
-	) AS [numbers]
+INNER JOIN
+	[ref].[expansion_numbers] -- expand households based on weight
 ON
-	[numbers].[n] BETWEEN 1 AND [synpop_hh].[final_weight]
+	[expansion_numbers].[n] BETWEEN 1 AND [synpop_hh].[final_weight]
 WHERE
 	[synpop_hh].[popsyn_run_id] = @popsyn_run_id
 
@@ -1342,11 +1489,6 @@ RETURNS @ret_persons_file TABLE
 AS
 BEGIN
 
-WITH -- used to expand households based on weight in later join
-	N1 AS (SELECT N1.[n] FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) AS N1 ([n])), -- a table of 10 1's with the column name of n
-	N2 AS (SELECT L.[n] FROM N1 AS L CROSS JOIN N1 AS R), -- a table of 100 1's with the column name of n
-	N3 AS (SELECT L.[n] FROM N2 AS L CROSS JOIN N2 AS R), -- a table of 10000 1's with the column name of n
-	N AS (SELECT ROW_NUMBER() OVER (ORDER BY @@SPID) AS [n] FROM N3) -- a table going from 1-100,000,000 sequentially
 INSERT INTO @ret_persons_file
 SELECT
 	[hhid]
@@ -1420,19 +1562,15 @@ INNER JOIN
 ON
 	[popsyn_run].[popsyn_data_source_id] = [person].[popsyn_data_source_id]
 	AND [synpop_person].[person_id] = [person].[person_id]
-INNER JOIN ( -- expand households based on weight
-	SELECT
-		[n]
-	FROM 
-		n
-	) AS numbers
+INNER JOIN
+	[ref].[expansion_numbers] -- expand households based on weight
 ON
-	numbers.[n] BETWEEN 1 AND [synpop_hh].[final_weight]
+	[expansion_numbers].[n] BETWEEN 1 AND [synpop_hh].[final_weight]
 INNER JOIN
 	[popsyn].[households_file](@popsyn_run_id)
 ON
 	[synpop_person].[synpop_hh_id] = [households_file].[synpop_hh_id]
-	AND [numbers].[n] = [households_file].[n]
+	AND [expansion_numbers].[n] = [households_file].[n]
 WHERE
 	[synpop_person].[popsyn_run_id] = @popsyn_run_id
 
@@ -1511,10 +1649,28 @@ FROM (
 	ON
 		[popsyn_run].[popsyn_data_source_id] = [hh].[popsyn_data_source_id]
 		AND [synpop_hh].[hh_id] = [hh].[hh_id]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@minor_geography_type_id, @geography_type_id)
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @minor_geography_type_id
+			AND [parent_zone].[geography_type_id] = @geography_type_id
+	) AS [minor_geotype_xref]
 	ON
-		[synpop_hh].[mgra] = [get_geography_xref].[child_zone]
+		[synpop_hh].[mgra] = [minor_geotype_xref].[child_zone]
 	WHERE
 		[synpop_hh].[popsyn_run_id] = @popsyn_run_id
 		AND [popsyn_run].[popsyn_run_id] = @popsyn_run_id
@@ -1591,10 +1747,28 @@ FROM (
 	ON
 		[popsyn_run].[popsyn_data_source_id] = [person].[popsyn_data_source_id]
 		AND [synpop_person].[person_id] = [person].[person_id]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@minor_geography_type_id, @geography_type_id)
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @minor_geography_type_id
+			AND [parent_zone].[geography_type_id] = @geography_type_id
+	) AS [minor_geotype_xref]
 	ON
-		[synpop_hh].[mgra] = [get_geography_xref].[child_zone]
+		[synpop_hh].[mgra] = [minor_geotype_xref].[child_zone]
 	WHERE
 		[synpop_person].[popsyn_run_id] = @popsyn_run_id
 		AND [synpop_hh].[popsyn_run_id] = @popsyn_run_id
@@ -1655,10 +1829,28 @@ FROM (
 	ON
 		[popsyn_run].[popsyn_data_source_id] = [hh].[popsyn_data_source_id]
 		AND [synpop_hh].[hh_id] = [hh].[hh_id]
-	INNER JOIN
-		[data_cafe].[ref].[get_geography_xref](@minor_geography_type_id, @geography_type_id)
+	INNER JOIN (
+		SELECT
+			[child_geography_zone_id]
+			,[child_zone].[zone] AS [child_zone]
+		    ,[parent_geography_zone_id]
+			,[parent_zone].[zone] AS [parent_zone]
+		FROM 
+			[data_cafe].[ref].[geography_xref]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [child_zone]
+		ON
+			[geography_xref].[child_geography_zone_id] = [child_zone].[geography_zone_id]
+		INNER JOIN
+			[data_cafe].[ref].[geography_zone] AS [parent_zone]
+		ON
+			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
+		WHERE
+			[child_zone].[geography_type_id] = @minor_geography_type_id
+			AND [parent_zone].[geography_type_id] = @geography_type_id
+	) AS [minor_geotype_xref]
 	ON
-		[synpop_hh].[mgra] = [get_geography_xref].[child_zone]
+		[synpop_hh].[mgra] = [minor_geotype_xref].[child_zone]
 	WHERE
 		[synpop_hh].[popsyn_run_id] = @popsyn_run_id
 		AND [popsyn_run].[popsyn_run_id] = @popsyn_run_id

@@ -24,6 +24,9 @@ GO
 
 
 -- ref tables
+EXECUTE [db_meta].[add_xp] 'ref.expansion_numbers', 'subsystem', 'reference'
+EXECUTE [db_meta].[add_xp] 'ref.expansion_numbers', 'ms_description', 'table of incrementing numbers used to expand synthetic population'
+
 EXECUTE [db_meta].[add_xp] 'ref.gq_type', 'subsystem', 'reference'
 EXECUTE [db_meta].[add_xp] 'ref.gq_type', 'ms_description', 'gq_type lookup'
 
@@ -47,6 +50,8 @@ GO
 
 
 -- ref columns
+EXECUTE [db_meta].[add_xp] 'ref.expansion_numbers.n', 'ms_description', 'incrementing numbers'
+
 EXECUTE [db_meta].[add_xp] 'ref.gq_type.gq_type_id', 'ms_description', 'gq_type surrogate key'
 EXECUTE [db_meta].[add_xp] 'ref.gq_type.gq_type_desc', 'ms_description', 'gq_type description'
 
