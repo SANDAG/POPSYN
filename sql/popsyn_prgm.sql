@@ -770,6 +770,37 @@ AS
 DECLARE @minor_geography_type_id smallint = (SELECT [minor_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id] WHERE [popsyn_run_id] = @popsyn_run_id)
 DECLARE @mid_geography_type_id smallint = (SELECT [middle_geography_type_id] FROM [ref].[lu_version] INNER JOIN [ref].[popsyn_run] ON [lu_version].[lu_version_id] = [popsyn_run].[lu_version_id] WHERE [popsyn_run_id] = @popsyn_run_id)
 
+
+UPDATE [ref].[popsyn_run] SET [validated] = NULL WHERE [popsyn_run_id] = @popsyn_run_id 
+
+
+IF((SELECT MAX([final_weight]) FROM [popsyn].[synpop_hh] WHERE [popsyn_run_id] = @popsyn_run_id) > 500)
+	PRINT 'A large household weight (>500) was assigned by popsyn, targets and acs pums in large disagreement proceed with caution.'
+
+
+IF((SELECT MAX([final_weight]) FROM [popsyn].[synpop_hh] WHERE [popsyn_run_id] = @popsyn_run_id) > (SELECT MAX([n]) FROM [ref].[expansion_numbers]))
+BEGIN
+	UPDATE [ref].[popsyn_run] SET [validated] = 'A household weight exceeds maximum n in ref.expansion_numbers, add to this table before using ouput.' WHERE [popsyn_run_id] = @popsyn_run_id
+	PRINT 'A household weight assigned by popsyn exceeds largest value in ref.expansion_numbers table, add to this table before using output.'
+END
+
+
+CREATE TABLE
+	#temp_results
+(
+	[popsyn_run_id] smallint NOT NULL
+	,[target_category_col_nm] nvarchar(50) NOT NULL
+	,[balancing_geography] nvarchar(50) NOT NULL
+	,[n] int NOT NULL
+	,[observed_region_total] int NOT NULL
+	,[target_region_total] int NOT NULL
+	,[diff_total] int NOT NULL
+	,[diff_mean] decimal(14,4) NOT NULL
+	,[diff_stdev] decimal(14,4) NOT NULL
+	,[diff_max] int NOT NULL
+	,[pct_diff_total] decimal(7,4) NOT NULL
+)
+INSERT INTO #temp_results
 -- mgra targets
 SELECT
 	@popsyn_run_id AS [popsyn_run_id]
@@ -779,10 +810,10 @@ SELECT
 	,SUM(results_mgra.[value]) AS [observed_region_total]
 	,SUM([control_targets].[value]) AS [target_region_total]
 	,SUM(results_mgra.[value] - [control_targets].[value]) AS [diff_total]
-	,AVG(results_mgra.[value] - [control_targets].[value]) AS [diff_mean]
+	,ROUND(AVG(1.0 * results_mgra.[value] - [control_targets].[value]), 4) AS [diff_mean]
 	,STDEV(results_mgra.[value] - [control_targets].[value]) AS [diff_stdev]
 	,MAX(results_mgra.[value] - [control_targets].[value]) AS [diff_max]
-	,ISNULL(1.0 * SUM(results_mgra.[value] - [control_targets].[value]) / NULLIF(SUM([control_targets].[value]), 0), 0) * 100 AS [pct_diff_total]
+	,ROUND(ISNULL(1.0 * SUM(results_mgra.[value] - [control_targets].[value]) / NULLIF(SUM([control_targets].[value]), 0), 0) * 100, 4) AS [pct_diff_total]
 FROM 
 	[popsyn_input].[control_targets]
 INNER JOIN
@@ -812,7 +843,7 @@ SELECT
 	,SUM(results_taz.[value]) AS [observed_region_total]
 	,SUM([control_targets].[value]) AS [target_region_total]
 	,SUM(results_taz.[value] - [control_targets].[value]) AS [diff_total]
-	,AVG(results_taz.[value] - [control_targets].[value]) AS [diff_mean]
+	,AVG(1.0 * results_taz.[value] - [control_targets].[value]) AS [diff_mean]
 	,STDEV(results_taz.[value] - [control_targets].[value]) AS [diff_stdev]
 	,MAX(results_taz.[value] - [control_targets].[value]) AS [diff_max]
 	,ISNULL(1.0 * SUM(results_taz.[value] - [control_targets].[value]) / NULLIF(SUM([control_targets].[value]), 0), 0) * 100 AS [pct_diff_total]
@@ -833,6 +864,23 @@ WHERE
 GROUP BY
 	[control_targets].[lu_version_id]
 	,[target_category_col_nm]
+
+
+IF((SELECT MAX([pct_diff_total]) FROM #temp_results WHERE [target_category_col_nm] IN ('Households', 'Non Institutional Group Quarters - Total', 'pop_non_gq')) >= 1)
+BEGIN
+	UPDATE [ref].[popsyn_run] SET [validated] = 'Households, gq, or non-gq population difference from target exceeds 1% regionally.' WHERE [popsyn_run_id] = @popsyn_run_id
+	PRINT 'Households, gq, or non-gq population difference from target exceeds 1% regionally.'
+END
+
+
+IF((SELECT [validated] FROM [ref].[popsyn_run] WHERE [popsyn_run_id] = @popsyn_run_id) IS NULL)
+UPDATE [ref].[popsyn_run] SET [validated] = 'valid' WHERE [popsyn_run_id] = @popsyn_run_id
+
+
+SELECT 
+	*
+FROM 
+	#temp_results
 GO
 
 
