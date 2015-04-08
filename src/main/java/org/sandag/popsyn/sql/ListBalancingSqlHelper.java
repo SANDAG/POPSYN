@@ -186,7 +186,7 @@ public class ListBalancingSqlHelper implements Serializable
     
     //Wu added to resolve primary key issues in synpop_hh and sypop_person caused be running general pop and GQ as two separate steps
     public void reseedTempId(String tableName, int runId){
-    	String query="SELECT MAX(hh_id)+1 FROM " + tableName + " WHERE [popsyn_run_id]="+runId; 
+    	String query="SELECT MAX(synpop_hh_id)+1 FROM " + tableName + " WHERE [popsyn_run_id]="+runId; 
     	int maxTempId=getIdentity(query);
         String reseedQuery="DBCC CHECKIDENT ('popsyn_staging.hhids_"+runId+"',RESEED, "+maxTempId+")";
         System.out.println("reseed query="+reseedQuery);
