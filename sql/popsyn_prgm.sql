@@ -26,7 +26,7 @@ SELECT
 	[lu_version_id]
 	,[vi_xref_mgra_13].[mgra_13] AS [mgra]
 	,[vi_xref_mgra_13].[taz_13] AS [taz]
-	,[puma_00] AS [puma] -- must use taz-puma lookup instead of mgra-puma lookup otherwise a taz will belong to multiple pumas
+	,[puma_2000] AS [puma] -- must use taz-puma lookup instead of mgra-puma lookup otherwise a taz will belong to multiple pumas
 	,[vi_xref_mgra_13].[region_2004] AS [region]
 	,[mgrabase].[hh]
 	,[hh_sf]
@@ -996,7 +996,7 @@ FROM (
 			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
 		WHERE
 			[child_zone].[geography_type_id] = @mid_geography_type_id
-			AND [parent_zone].[geography_type_id] = 69 -- hardcoded puma_00 geography_type_id
+			AND [parent_zone].[geography_type_id] = 69 -- hardcoded puma_2000 geography_type_id
 		) AS [mid_puma_xref]
 	ON
 		[minor_mid_xref].[parent_geography_zone_id] = [mid_puma_xref].[child_geography_zone_id]
@@ -1164,7 +1164,7 @@ FROM (
 			[geography_xref].[parent_geography_zone_id] = [parent_zone].[geography_zone_id]
 		WHERE
 			[child_zone].[geography_type_id] = @mid_geography_type_id
-			AND [parent_zone].[geography_type_id] = 69 -- hardcoded puma_00 geography_type_id
+			AND [parent_zone].[geography_type_id] = 69 -- hardcoded puma_2000 geography_type_id
 		) AS [mid_puma_xref]
 	ON
 		[control_targets].[geography_zone_id] = [mid_puma_xref].[child_geography_zone_id]
