@@ -24,10 +24,10 @@ CREATE VIEW [popsyn_input].[vi_lu_data] AS
 -- These must have [ref].[lu_version].[lu_major_version] = 13 and [ref].[lu_version].[lu_minor_version] = 1
 SELECT
 	[lu_version_id]
-	,[vi_xref_mgra_13].[mgra_13] AS [mgra]
-	,[vi_xref_mgra_13].[taz_13] AS [taz]
+	,[vi_xref_geography_mgra_13].[mgra_13] AS [mgra]
+	,[vi_xref_geography_mgra_13].[taz_13] AS [taz]
 	,[puma_2000] AS [puma] -- must use taz-puma lookup instead of mgra-puma lookup otherwise a taz will belong to multiple pumas
-	,[vi_xref_mgra_13].[region_2004] AS [region]
+	,[vi_xref_geography_mgra_13].[region_2004] AS [region]
 	,[mgrabase].[hh]
 	,[hh_sf]
 	,[hh_mf]
@@ -136,13 +136,13 @@ ON
 	AND [mgrabase].[increment] = pasef_mgra_agg.[year]
 	AND [mgrabase].[mgra] = pasef_mgra_agg.[mgra]
 INNER JOIN
-	[data_cafe].[ref].[vi_xref_mgra_13] -- get series 13 mgra to series 13 taz
+	[data_cafe].[ref].[vi_xref_geography_mgra_13] -- get series 13 mgra to series 13 taz
 ON
-	[mgrabase].[mgra] = [vi_xref_mgra_13].[mgra_13]
+	[mgrabase].[mgra] = [vi_xref_geography_mgra_13].[mgra_13]
 INNER JOIN
-	[data_cafe].[ref].[vi_xref_taz_13] -- get series 13 taz to puma year 2000
+	[data_cafe].[ref].[vi_xref_geography_taz_13] -- get series 13 taz to puma year 2000
 ON
-	[vi_xref_mgra_13].[taz_13] = [vi_xref_taz_13].[taz_13]
+	[vi_xref_geography_mgra_13].[taz_13] = [vi_xref_geography_taz_13].[taz_13]
 INNER JOIN
 	[ref].[lu_version] -- this join means a scenario needs to be in this table to appear
 ON
