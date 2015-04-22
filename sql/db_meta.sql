@@ -324,13 +324,13 @@ DROP TABLE [db_meta].[schema_change_log]
 GO
 
 CREATE TABLE [db_meta].[schema_change_log] (
-	[id] [smallint] IDENTITY(1,1) NOT NULL,
+	[schema_change_log_id] [smallint] IDENTITY(1,1) NOT NULL,
 	[major_release_no] [varchar](2) NOT NULL,
 	[minor_release_no] [varchar](2) NOT NULL,
-	[pont_release_no] [varchar](4) NOT NULL,
+	[point_release_no] [varchar](4) NOT NULL,
 	[script_name] [varchar](50) NOT NULL,
 	[date_applied] [datetime] NOT NULL,
-	CONSTRAINT [pk_schema_change_log] PRIMARY KEY CLUSTERED ([id])
+	CONSTRAINT [pk_schema_change_log] PRIMARY KEY CLUSTERED ([schema_change_log_id])
 	) 
 WITH 
 	(DATA_COMPRESSION = PAGE);
@@ -345,4 +345,16 @@ GO
 EXEC db_meta.add_xp 'db_meta.schema_change_log', 'ms_description', 'database version and changes tracking table'
 GO
 EXEC db_meta.add_xp 'db_meta.schema_change_log', 'subsystem', 'meta'
+GO
+EXEC db_meta.add_xp 'db_meta.schema_change_log.schema_change_log_id', 'ms_description', 'schema_change_log surrogate key'
+GO
+EXEC db_meta.add_xp 'db_meta.schema_change_log.major_release_no', 'ms_description', 'major release'
+GO
+EXEC db_meta.add_xp 'db_meta.schema_change_log.minor_release_no', 'ms_description', 'minor release'
+GO
+EXEC db_meta.add_xp 'db_meta.schema_change_log.point_release_no', 'ms_description', 'point release'
+GO
+EXEC db_meta.add_xp 'db_meta.schema_change_log.script_name', 'ms_description', 'sql script applied to database'
+GO
+EXEC db_meta.add_xp 'db_meta.schema_change_log.date_applied', 'ms_description', 'date script was applied'
 GO

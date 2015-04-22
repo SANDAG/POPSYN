@@ -39,6 +39,9 @@ EXECUTE [db_meta].[add_xp] 'ref.lu_version', 'ms_description', 'land use version
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_data_source', 'subsystem', 'reference'
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_data_source', 'ms_description', 'data sources used to populate base data used by popsyn program'
 
+EXECUTE [db_meta].[add_xp] 'ref.popsyn_race', 'subsystem', 'reference'
+EXECUTE [db_meta].[add_xp] 'ref.popsyn_race', 'ms_description', 'popsyn_race lookup'
+
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_run', 'subsystem', 'reference'
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_run', 'ms_description', 'popsyn runs with relevant settings'
 
@@ -73,6 +76,9 @@ EXECUTE [db_meta].[add_xp] 'ref.lu_version.mgra_based_input_file_created', 'ms_d
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_data_source.popsyn_data_source_id', 'ms_description', 'popsyn_data_source surrogate key'
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_data_source.popsyn_data_source_desc', 'ms_description', 'popsyn_data_source description'
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_data_source.popsyn_data_source_inputs_created', 'ms_description', 'date data from the popsyn_data_source was created'
+
+EXECUTE [db_meta].[add_xp] 'ref.popsyn_race.popsyn_race_id', 'ms_description', 'popsyn_race surrogate key'
+EXECUTE [db_meta].[add_xp] 'ref.popsyn_race.popsyn_race_desc', 'ms_description', 'popsyn_race description'
 
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_run.popsyn_run_id', 'ms_description', 'popsyn_run surrogate key'
 EXECUTE [db_meta].[add_xp] 'ref.popsyn_run.popsyn_data_source_id', 'ms_description', 'popsyn_data_source surrogate key'
