@@ -1573,6 +1573,8 @@ ON
 	AND [expansion_numbers].[n] = [households_file].[n]
 WHERE
 	[synpop_person].[popsyn_run_id] = @popsyn_run_id
+ORDER BY
+	[hhid]
 
 RETURN
 END
