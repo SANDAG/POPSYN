@@ -170,7 +170,7 @@ DROP PROCEDURE [popsyn_input].[generate_control_targets]
 GO
 
 CREATE PROCEDURE [popsyn_input].[generate_control_targets]
-	@lu_version_id tinyint -- Need to specify [lu_version_id] located in [ref].[lu_version]
+	@lu_version_id smallint -- Need to specify [lu_version_id] located in [ref].[lu_version]
 AS
 
 BEGIN TRANSACTION generate_control_targets WITH mark
@@ -904,7 +904,7 @@ GO
 CREATE FUNCTION 
 	[popsyn_input].[control_targets_mgra] 
 (
-	@lu_version_id tinyint
+	@lu_version_id smallint
 )
 
 RETURNS @ret_controltargetsmgra TABLE
@@ -1064,7 +1064,7 @@ GO
 CREATE FUNCTION 
 	[popsyn_input].[control_targets_taz] 
 (
-	@lu_version_id tinyint
+	@lu_version_id smallint
 )
 
 RETURNS @ret_controltargetstaz TABLE
@@ -1250,7 +1250,7 @@ GO
 CREATE FUNCTION 
 	[popsyn_input].[control_targets_region] 
 (
-	@lu_version_id tinyint
+	@lu_version_id smallint
 )
 RETURNS TABLE AS
 
@@ -1326,7 +1326,7 @@ RETURNS @ret_households_file TABLE
 	[hht] [smallint] NOT NULL,
 	[bldgsz] [smallint] NOT NULL,
 	[unittype] [tinyint] NOT NULL,
-	[popsyn_run_id] [tinyint] NOT NULL,
+	[popsyn_run_id] [smallint] NOT NULL,
 	[poverty] [decimal](7,4) NULL,
 	[n] [int] NOT NULL, -- just used to create persons file, do not include when outputting csv
 	[final_weight] [int] NOT NULL, -- just used to create persons file, do not include when outputting csv
